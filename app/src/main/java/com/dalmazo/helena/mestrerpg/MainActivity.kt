@@ -2,11 +2,11 @@ package com.dalmazo.helena.mestrerpg
 
 import android.content.Context
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import com.dalmazo.helena.mestrerpg.enum.Race
 import com.dalmazo.helena.mestrerpg.enum.Sex
 import com.dalmazo.helena.mestrerpg.model.Npc

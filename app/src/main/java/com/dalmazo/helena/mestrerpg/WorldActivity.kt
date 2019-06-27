@@ -1,14 +1,14 @@
 package com.dalmazo.helena.mestrerpg
 
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.dalmazo.helena.mestrerpg.fragment.MonsterFragment
 import com.dalmazo.helena.mestrerpg.fragment.NpcFragment
 import com.dalmazo.helena.mestrerpg.fragment.PlaceFragment
 import com.dalmazo.helena.mestrerpg.fragment.WorldFragment
 import com.dalmazo.helena.mestrerpg.model.World
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class WorldActivity : AppCompatActivity() {
 
