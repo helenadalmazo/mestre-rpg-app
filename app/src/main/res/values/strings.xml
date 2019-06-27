@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">mestre-rpg-app</string>
+
+    <!--Título das atividades-->
+    <string name="title_activity_world">Mundo</string>
+
+    <!--Model-->
+    <string name="world">Mundo</string>
+    <string name="place">Lugar</string>
+    <string name="npc">NPC</string>
+    <string name="monster">Monstro</string>
+
+    <!--Model plural-->
+    <string name="place_plural">Lugares</string>
+    <string name="npc_plural">NPCs</string>
+    <string name="monster_plural">Monstros</string>
+
+    <!--Atributos BaseModel-->
+    <string name="attr_name">Nome</string>
+    <string name="attr_characteristics">Características</string>
+    <string name="attr_history">História</string>
+
+    <!--Atributos Npc-->
+    <string name="attr_sex">Sexo</string>
+    <string name="attr_race">Espécie</string>
+
+
 </resources>

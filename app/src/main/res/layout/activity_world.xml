@@ -5,18 +5,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <ListView
+    <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/world_list"/>
+            android:id="@+id/fragment"
+            android:layout_above="@id/nav_view"
+            android:animateLayoutChanges="true">
+    </FrameLayout>
 
-    <android.support.design.widget.FloatingActionButton
-            android:layout_width="wrap_content"
+    <android.support.design.widget.BottomNavigationView
+            android:id="@+id/nav_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_add_white_24dp"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:id="@+id/place_add_new"
-            android:onClick="clickCreateNewWorld"
-            android:layout_margin="16dp"/>
+            android:background="?android:attr/windowBackground"
+            app:menu="@menu/bottom_nav_menu"/>
 </RelativeLayout>
