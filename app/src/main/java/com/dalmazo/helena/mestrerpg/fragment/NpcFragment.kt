@@ -4,14 +4,15 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.app.Fragment
 import android.view.*
 import android.widget.*
+import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.Fragment
 import com.dalmazo.helena.mestrerpg.WorldActivity
 import com.dalmazo.helena.mestrerpg.NpcActivity
 import com.dalmazo.helena.mestrerpg.R
 import com.dalmazo.helena.mestrerpg.model.Npc
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class NpcFragment : Fragment() {
 
@@ -50,11 +51,11 @@ class NpcFragment : Fragment() {
         return view
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         var message: String = ""
         if (resultCode == Activity.RESULT_OK && requestCode == NPC_REQUEST_CODE) {
 
-            when (data.extras.get(NPC_ACTION_EXTRA)) {
+            when (data?.extras?.get(NPC_ACTION_EXTRA)) {
                 ADD_NPC_EXTRA -> {
                     val npcAdded = data.extras?.get(NPC_EXTRA) as Npc
 
@@ -90,8 +91,8 @@ class NpcFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
-        inflater?.inflate(R.menu.app_bar_actions_buttons_list, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.app_bar_actions_buttons_list, menu)
 
         val expandListener = object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
@@ -105,11 +106,11 @@ class NpcFragment : Fragment() {
             }
         }
 
-        val actionMenuItem = menu?.findItem(R.id.action_search) as MenuItem
+        val actionMenuItem = menu.findItem(R.id.action_search) as MenuItem
 
-        actionMenuItem?.setOnActionExpandListener(expandListener)
+        actionMenuItem.setOnActionExpandListener(expandListener)
 
-        (actionMenuItem.actionView as android.support.v7.widget.SearchView).setOnQueryTextListener( object : android.support.v7.widget.SearchView.OnQueryTextListener {
+        (actionMenuItem.actionView as SearchView).setOnQueryTextListener( object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }

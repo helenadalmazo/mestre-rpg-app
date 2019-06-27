@@ -10,7 +10,7 @@
             android:layout_height="match_parent"
             android:id="@+id/world_list"/>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:srcCompat="@drawable/ic_add_white_24dp"
