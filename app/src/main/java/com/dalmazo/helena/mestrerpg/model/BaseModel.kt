@@ -1,5 +1,10 @@
 package com.dalmazo.helena.mestrerpg.model
 
+import com.google.firebase.firestore.Exclude
 import java.io.Serializable
 
-open class BaseModel(var id: Long, var name: String, var characteristics: String, var history: String) : Serializable { }
+open class BaseModel(@get:Exclude var id: String = "",
+                     val name: String = "",
+                     val characteristics: String = "",
+                     val history: String = "")
+    : Serializable { }

@@ -7,11 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.dalmazo.helena.mestrerpg.enum.Race
-import com.dalmazo.helena.mestrerpg.enum.Sex
-import com.dalmazo.helena.mestrerpg.model.Npc
-import com.dalmazo.helena.mestrerpg.model.Place
 import com.dalmazo.helena.mestrerpg.model.World
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,32 +18,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        var npc1 = Npc(1,"AAAAAA", "AAAAAA características", "AAAAAA história", Sex.FEMALE, Race.ORC)
-        var npc2 = Npc(2,"BBBBBB", "BBBBBB características", "BBBBBB história", Sex.FEMALE, Race.ORC)
-        var npc3 = Npc(3,"CCCCCC", "CCCCCC características", "CCCCCC história", Sex.FEMALE, Race.ORC)
-        var npc4 = Npc(4,"DDDDDD", "DDDDDD características", "DDDDDD história", Sex.FEMALE, Race.ORC)
-        var npc5 = Npc(5,"EEEEEE", "EEEEEE características", "EEEEEE história", Sex.FEMALE, Race.ORC)
-        var npc6 = Npc(6,"FFFFFF", "FFFFFF características", "FFFFFF história", Sex.FEMALE, Race.ORC)
-        var npc7 = Npc(7,"GGGGGG", "GGGGGG características", "GGGGGG história", Sex.FEMALE, Race.ORC)
-        var npc8 = Npc(8,"HHHHHH", "HHHHHH características", "HHHHHH história", Sex.FEMALE, Race.ORC)
-        var npc9 = Npc(9,"IIIIII", "IIIIII características", "IIIIII história", Sex.FEMALE, Race.ORC)
-        var npc0 = Npc(0,"JJJJJJ", "JJJJJJ características", "JJJJJJ história", Sex.FEMALE, Race.ORC)
+        setWorldList()
+    }
 
-        var place1 = Place(5,"Hospital", "Hospital características", "Hospital história")
-        var place2 = Place(6,"Floresta", "Floresta características", "Floresta história")
-        var place3 = Place(7,"Farmácia", "Farmácia características", "Farmácia história")
-        var place4 = Place(8,"Castelo", "Castelo características", "Castelo história")
+    private fun setWorldList() {
+        FirebaseFirestore.getInstance().collection("worlds").get().addOnCompleteListener { task ->
+            if (!task.isSuccessful) return@addOnCompleteListener
 
-        var mundo1 = World(9, "Mundo 1", "Mundo 1 características", "Mundo 1 história", listOf(place1, place2, place3, place4), mutableListOf(npc1, npc2, npc3, npc4, npc5, npc6, npc7, npc8, npc9, npc0), listOf())
+            val worlds : MutableList<World> = mutableListOf()
+            for (worldDoc in task.result!!) {
+                val world: World = worldDoc.toObject(World::class.java).apply { this.id = worldDoc.id }
+                worlds.add(world)
+            }
 
-        with(findViewById<ListView>(R.id.world_list)) {
-            adapter = WorldAdapter(this@MainActivity, listOf(mundo1))
-            onItemClickListener = AdapterView.OnItemClickListener { adapter, _, position, _ ->
-                val worldClicked = adapter.getItemAtPosition(position) as World
-                val intent = Intent(this@MainActivity, WorldActivity::class.java).apply {
-                    putExtra(EXTRA_ENTITY_WORLD, worldClicked)
+            with(findViewById<ListView>(R.id.world_list)) {
+                adapter = WorldAdapter(this@MainActivity, worlds)
+                onItemClickListener = AdapterView.OnItemClickListener { adapter, _, position, _ ->
+                    val worldClicked = adapter.getItemAtPosition(position) as World
+                    startActivity(Intent(this@MainActivity, WorldActivity::class.java).apply {
+                        putExtra(EXTRA_ENTITY_WORLD, worldClicked)
+                    })
                 }
-                startActivity(intent)
             }
         }
     }
