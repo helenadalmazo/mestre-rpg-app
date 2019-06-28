@@ -16,44 +16,44 @@ class WorldActivity : AppCompatActivity() {
 
     lateinit var world: World
 
-    private val onNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        when (item.itemId) {
-            R.id.navigation_world -> {
-                startFragment(WorldFragment())
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_place -> {
-                startFragment(PlaceFragment())
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_npc -> {
-                startFragment(NpcFragment())
-                return@OnNavigationItemSelectedListener true
-            }
-            R.id.navigation_monster -> {
-                startFragment(MonsterFragment())
-                return@OnNavigationItemSelectedListener true
-            }
-        }
-        false
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_world)
+
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         world = intent.extras.getSerializable(EXTRA_ENTITY_WORLD) as World
 
+        title = world.name
+
         startFragment(WorldFragment())
 
-        navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+        navView.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_world -> {
+                    startFragment(WorldFragment())
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_place -> {
+                    startFragment(PlaceFragment())
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_npc -> {
+                    startFragment(NpcFragment())
+                    return@OnNavigationItemSelectedListener true
+                }
+                R.id.navigation_monster -> {
+                    startFragment(MonsterFragment())
+                    return@OnNavigationItemSelectedListener true
+                }
+            }
+            false
+        })
     }
 
     private fun startFragment(fragment: Fragment) {
-        title = world.name
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.fragment, fragment)
-        transaction.commit()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment, fragment)
+            .commit()
     }
 }
