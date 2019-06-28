@@ -23,7 +23,7 @@ class NpcActivity : AppCompatActivity() {
     var existsNPC = false
     var editMode = true
 
-    lateinit var npc: Npc
+    var npc: Npc? = null
 
     lateinit var editTextName: EditText
     lateinit var editTextCharacteristics : EditText
@@ -56,11 +56,11 @@ class NpcActivity : AppCompatActivity() {
             existsNPC = true
             editMode = false
 
-            editTextName.setText(npc.name, TextView.BufferType.EDITABLE)
-            editTextCharacteristics.setText(npc.characteristics, TextView.BufferType.EDITABLE)
-            editTextHistory.setText(npc.history, TextView.BufferType.EDITABLE)
-            spinnerSex.setSelection(spinnerSexArrayAdapter.getPosition(npc.sex.toString()))
-            spinnerRace.setSelection(spinnerRaceArrayAdapter.getPosition(npc.race.toString()))
+            editTextName.setText(npc?.name, TextView.BufferType.EDITABLE)
+            editTextCharacteristics.setText(npc?.characteristics, TextView.BufferType.EDITABLE)
+            editTextHistory.setText(npc?.history, TextView.BufferType.EDITABLE)
+            spinnerSex.setSelection(spinnerSexArrayAdapter.getPosition(npc?.sex.toString()))
+            spinnerRace.setSelection(spinnerRaceArrayAdapter.getPosition(npc?.race.toString()))
 
             disableInput(editTextName)
             disableInput(editTextCharacteristics)
@@ -90,7 +90,7 @@ class NpcActivity : AppCompatActivity() {
         val sex = spinnerSex.selectedItem.toString()
         val race = spinnerRace.selectedItem.toString()
 
-        npc = Npc(Math.random().toLong(),name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
+        npc = Npc(npc?.id ?: "", name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
 
         val intentToReturn = Intent().apply {
             putExtra(NPC_EXTRA, npc)
