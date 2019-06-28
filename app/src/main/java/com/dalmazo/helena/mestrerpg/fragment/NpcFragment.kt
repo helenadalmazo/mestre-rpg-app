@@ -13,6 +13,7 @@ import com.dalmazo.helena.mestrerpg.NpcActivity
 import com.dalmazo.helena.mestrerpg.R
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.firestore.FirebaseFirestore
 
 class NpcFragment : Fragment() {
 
@@ -24,68 +25,64 @@ class NpcFragment : Fragment() {
     val EDIT_NPC_EXTRA = "EDIT_NPC_EXTRA"
     val DELETE_NPC_EXTRA = "DELETE_NPC_EXTRA"
 
-    lateinit var npcs: MutableList<Npc>
+    lateinit var worldId: String
+
+    var npcs: MutableList<Npc> = mutableListOf()
+
     lateinit var npcAdapter: NpcAdapter
-    lateinit var npc: Npc
+
+    lateinit var menuItemSearch: MenuItem
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle? ): View? {
-        val view = inflater.inflate(R.layout.fragment_npc, container, false)
+
+        worldId = (activity as WorldActivity).world.id
 
         setHasOptionsMenu(true)
+
+        val view = inflater.inflate(R.layout.fragment_npc, container, false)
 
         view.findViewById<FloatingActionButton>(R.id.npc_add_new)?.setOnClickListener {
             startActivityForResult(Intent(activity, NpcActivity::class.java), NPC_REQUEST_CODE)
         }
 
-        npcs = (activity as WorldActivity).world.npcs
-        npcAdapter = NpcAdapter(activity as WorldActivity, npcs) //copy list
-
-        (view.findViewById<ListView>(R.id.npc_list)).apply {
-            adapter = npcAdapter
-            onItemClickListener = AdapterView.OnItemClickListener { adapter, _, position, _ ->
-                npc = adapter.getItemAtPosition(position) as Npc
-                startActivityForResult(Intent(activity, NpcActivity::class.java).apply { putExtra(NPC_EXTRA, npc) }, NPC_REQUEST_CODE)
-            }
-        }
+        setNpcList(view)
 
         return view
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        var message: String = ""
-        if (resultCode == Activity.RESULT_OK && requestCode == NPC_REQUEST_CODE) {
+    private fun setNpcList(view: View) {
+        FirebaseFirestore.getInstance()
+            .collection("worlds").document(worldId)
+            .collection("npcs").get().addOnCompleteListener { task ->
+                if (!task.isSuccessful) return@addOnCompleteListener
 
-            when (data?.extras?.get(NPC_ACTION_EXTRA)) {
-                ADD_NPC_EXTRA -> {
-                    val npcAdded = data.extras?.get(NPC_EXTRA) as Npc
-
-                    npcs.add(npcAdded)
-
-                    message = "NPC ${npcAdded.name} adicionado com sucesso!"
+                for (npcDoc in task.result!!) {
+                    val npc: Npc = npcDoc.toObject(Npc::class.java).apply { this.id = npcDoc.id }
+                    npcs.add(npc)
                 }
-                EDIT_NPC_EXTRA -> {
-                    val npcEdited = data.extras.get(NPC_EXTRA) as Npc
 
-                    val position = (activity as WorldActivity).world.npcs.indexOf(npc)
+                npcAdapter = NpcAdapter(activity as WorldActivity, npcs.toList())
 
-                    npcs.set(position, npcEdited)
-
-                    message = "NPC ${npcEdited.name} salvo com sucesso!"
-
-                }
-                DELETE_NPC_EXTRA -> {
-                    val npcDeleted = data.extras.get(NPC_EXTRA) as Npc
-
-                    val position = (activity as WorldActivity).world.npcs.indexOf(npc)
-
-                    npcs.removeAt(position)
-
-                    message = "NPC ${npcDeleted.name} removido com sucesso!"
+                (view.findViewById<ListView>(R.id.npc_list)).apply {
+                    adapter = npcAdapter
+                    onItemClickListener = AdapterView.OnItemClickListener { adapter, _, position, _ ->
+                        val npcClicked = adapter.getItemAtPosition(position) as Npc
+                        val intent = Intent(activity, NpcActivity::class.java).apply { putExtra(NPC_EXTRA, npcClicked) }
+                        startActivityForResult(intent, NPC_REQUEST_CODE)
+                    }
                 }
             }
+    }
 
-            npcAdapter.notifyDataSetChanged()
-            Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK && requestCode == NPC_REQUEST_CODE) {
+            val npc = data?.extras?.get(NPC_EXTRA) as Npc
+
+            when (data?.extras?.get(NPC_ACTION_EXTRA)) {
+                ADD_NPC_EXTRA -> addNpcFirestore(npc)
+                EDIT_NPC_EXTRA -> editNpcFirestore(npc)
+                DELETE_NPC_EXTRA -> deleteNpcFirestore(npc)
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, data)
@@ -108,7 +105,7 @@ class NpcFragment : Fragment() {
 
         val actionMenuItem = menu.findItem(R.id.action_search) as MenuItem
 
-        actionMenuItem.setOnActionExpandListener(expandListener)
+        menuItemSearch = actionMenuItem
 
         (actionMenuItem.actionView as SearchView).setOnQueryTextListener( object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -125,8 +122,6 @@ class NpcFragment : Fragment() {
 
     inner class NpcAdapter(context: Context, npcs: List<Npc>) : ArrayAdapter<Npc>(context, R.layout.basic_list_item, npcs) {
 
-        private val dataNpcs: List<Npc> = npcs
-
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val rowView: View = layoutInflater.inflate(R.layout.basic_list_item, null, false);
 
@@ -137,28 +132,20 @@ class NpcFragment : Fragment() {
             return rowView
         }
 
-//        override fun getFilter(): Filter {
-//            return super.getFilter()
-//        }
-
-//        fun getAllItens(): List<NPC> {
-//            var allNpcs: MutableList<NPC> = mutableListOf()
-//            for (i in 0..(count-1)) {
-//                allNpcs.add(getItem(i))
-//            }
-//            return this@NpcFragment.npcs
-//        }
-
         override fun getFilter() = object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {
-                var results = FilterResults()
 
-                var originalNpcs = this@NpcFragment.npcs
+                val originalNpcs = this@NpcFragment.npcs.toList()
+                val results = FilterResults()
+
+                results.values = originalNpcs
+                results.count = originalNpcs.size
+
                 if (constraint != null && constraint != "") {
                     val filteredNpcs: MutableList<Npc> = mutableListOf()
 
                     for (currentNpc in originalNpcs){
-                        if(currentNpc.name.contains(constraint)){
+                        if (currentNpc.name.toLowerCase().contains(constraint.toString().toLowerCase())){
                             filteredNpcs.add(currentNpc);
                         }
                     }
@@ -172,17 +159,71 @@ class NpcFragment : Fragment() {
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 clear()
-
-                println("results?.count ${results?.count}")
-                if (results?.count!! > 0) {
-                    addAll(results?.values as List<Npc>)
-                } else {
-                    addAll(this@NpcFragment.npcs)
-                }
-
+                addAll(results?.values as List<Npc>)
                 notifyDataSetChanged()
             }
 
         }
+    }
+
+    private fun addNpcFirestore(npc: Npc) {
+        FirebaseFirestore.getInstance()
+            .collection("worlds").document(worldId)
+            .collection("npcs")
+            .add(npc)
+            .addOnSuccessListener { documentReference ->
+                npc.id = documentReference.id
+                npcs.add(npc)
+
+                updateNpcList()
+
+                Toast.makeText(activity, "NPC ${npc.name} criado com sucesso!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(activity, "Erro ao criar o NPC ${npc.name}.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun editNpcFirestore(npc: Npc) {
+        FirebaseFirestore.getInstance()
+            .collection("worlds").document(worldId)
+            .collection("npcs").document(npc.id)
+            .set(npc)
+            .addOnSuccessListener {
+                val position = npcs.indexOf(npcs.filter { it.id == npc.id }.first())
+                npcs.set(position, npc)
+
+                updateNpcList()
+
+                Toast.makeText(activity, "NPC ${npc.name} salvo com sucesso!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(activity, "Erro ao salvar o NPC ${npc.name}.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun deleteNpcFirestore(npc: Npc) {
+        FirebaseFirestore.getInstance()
+            .collection("worlds").document(worldId)
+            .collection("npcs").document(npc.id)
+            .delete()
+            .addOnSuccessListener {
+                val position = npcs.indexOf(npcs.filter { it.id == npc.id }.first())
+                npcs.removeAt(position)
+
+                updateNpcList()
+
+                Toast.makeText(activity, "NPC ${npc.name} removido com sucesso!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { exception ->
+                Toast.makeText(activity, "Erro ao remover o NPC ${npc.name}.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun updateNpcList() {
+        npcAdapter.clear()
+        npcAdapter.addAll(npcs)
+        npcAdapter.notifyDataSetChanged()
+        menuItemSearch.collapseActionView()
     }
 }
