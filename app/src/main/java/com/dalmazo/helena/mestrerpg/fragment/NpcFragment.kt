@@ -11,19 +11,15 @@ import androidx.fragment.app.Fragment
 import com.dalmazo.helena.mestrerpg.WorldActivity
 import com.dalmazo.helena.mestrerpg.NpcActivity
 import com.dalmazo.helena.mestrerpg.R
+import com.dalmazo.helena.mestrerpg.enum.Action
 import com.dalmazo.helena.mestrerpg.model.Npc
+import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
 
 class NpcFragment : Fragment() {
 
-    val NPC_REQUEST_CODE = 15245
-
-    val NPC_EXTRA = "NPC_EXTRA"
-    val NPC_ACTION_EXTRA = "NPC_ACTION_EXTRA"
-    val ADD_NPC_EXTRA = "ADD_NPC_EXTRA"
-    val EDIT_NPC_EXTRA = "EDIT_NPC_EXTRA"
-    val DELETE_NPC_EXTRA = "DELETE_NPC_EXTRA"
+    val REQUEST_CODE_NPC = 1111
 
     lateinit var worldId: String
 
@@ -34,15 +30,17 @@ class NpcFragment : Fragment() {
     lateinit var menuItemSearch: MenuItem
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle? ): View? {
-
         worldId = (activity as WorldActivity).world.id
 
         setHasOptionsMenu(true)
 
         val view = inflater.inflate(R.layout.fragment_npc, container, false)
 
-        view.findViewById<FloatingActionButton>(R.id.npc_add_new)?.setOnClickListener {
-            startActivityForResult(Intent(activity, NpcActivity::class.java), NPC_REQUEST_CODE)
+        view.findViewById<FloatingActionButton>(R.id.npc_add).setOnClickListener {
+            val intent = Intent(activity, NpcActivity::class.java).apply {
+                putExtra(Extra.NPC_ACTION, Action.ADD)
+            }
+            startActivityForResult(intent, REQUEST_CODE_NPC)
         }
 
         setNpcList(view)
@@ -67,21 +65,25 @@ class NpcFragment : Fragment() {
                     adapter = npcAdapter
                     onItemClickListener = AdapterView.OnItemClickListener { adapter, _, position, _ ->
                         val npcClicked = adapter.getItemAtPosition(position) as Npc
-                        val intent = Intent(activity, NpcActivity::class.java).apply { putExtra(NPC_EXTRA, npcClicked) }
-                        startActivityForResult(intent, NPC_REQUEST_CODE)
+                        val intent = Intent(activity, NpcActivity::class.java).apply {
+                            putExtra(Extra.NPC_ACTION, Action.EDIT)
+                            putExtra(Extra.NPC_OBJECT, npcClicked)
+                        }
+                        startActivityForResult(intent, REQUEST_CODE_NPC)
                     }
                 }
             }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK && requestCode == NPC_REQUEST_CODE) {
-            val npc = data?.extras?.get(NPC_EXTRA) as Npc
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_NPC) {
 
-            when (data?.extras?.get(NPC_ACTION_EXTRA)) {
-                ADD_NPC_EXTRA -> addNpcFirestore(npc)
-                EDIT_NPC_EXTRA -> editNpcFirestore(npc)
-                DELETE_NPC_EXTRA -> deleteNpcFirestore(npc)
+            val npc = data?.getSerializableExtra(Extra.NPC_OBJECT) as Npc
+
+            when (data?.getSerializableExtra(Extra.NPC_ACTION)) {
+                Action.ADD -> addNpcFirestore(npc)
+                Action.EDIT -> editNpcFirestore(npc)
+                Action.DELETE -> deleteNpcFirestore(npc)
             }
         }
 

@@ -8,22 +8,21 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import com.dalmazo.helena.mestrerpg.enum.Action
 import com.dalmazo.helena.mestrerpg.enum.Race
 import com.dalmazo.helena.mestrerpg.enum.Sex
 import com.dalmazo.helena.mestrerpg.model.Npc
+import com.dalmazo.helena.mestrerpg.util.Extra
 
 class NpcActivity : AppCompatActivity() {
 
-    val NPC_EXTRA = "NPC_EXTRA"
-    val NPC_ACTION_EXTRA = "NPC_ACTION_EXTRA"
-    val ADD_NPC_EXTRA = "ADD_NPC_EXTRA"
-    val EDIT_NPC_EXTRA = "EDIT_NPC_EXTRA"
-    val DELETE_NPC_EXTRA = "DELETE_NPC_EXTRA"
+    // padrão modo de edição = true, adicionar novo NPC
+    var npcObject = Npc()
 
     var existsNPC = false
     var editMode = true
 
-    var npc: Npc? = null
+    lateinit var npcAction: Action
 
     lateinit var editTextName: EditText
     lateinit var editTextCharacteristics : EditText
@@ -51,16 +50,18 @@ class NpcActivity : AppCompatActivity() {
         spinnerRaceArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerRace.adapter = spinnerRaceArrayAdapter
 
-        if (intent.extras?.getSerializable(NPC_EXTRA) != null) {
-            npc = intent.extras.getSerializable(NPC_EXTRA) as Npc
+        npcAction = intent.getSerializableExtra(Extra.NPC_ACTION) as Action
+
+        if (npcAction == Action.EDIT) {
             existsNPC = true
             editMode = false
+            npcObject = intent.getSerializableExtra(Extra.NPC_OBJECT) as Npc
 
-            editTextName.setText(npc?.name, TextView.BufferType.EDITABLE)
-            editTextCharacteristics.setText(npc?.characteristics, TextView.BufferType.EDITABLE)
-            editTextHistory.setText(npc?.history, TextView.BufferType.EDITABLE)
-            spinnerSex.setSelection(spinnerSexArrayAdapter.getPosition(npc?.sex.toString()))
-            spinnerRace.setSelection(spinnerRaceArrayAdapter.getPosition(npc?.race.toString()))
+            editTextName.setText(npcObject.name, TextView.BufferType.EDITABLE)
+            editTextCharacteristics.setText(npcObject.characteristics, TextView.BufferType.EDITABLE)
+            editTextHistory.setText(npcObject.history, TextView.BufferType.EDITABLE)
+            spinnerSex.setSelection(spinnerSexArrayAdapter.getPosition(npcObject.sex.toString()))
+            spinnerRace.setSelection(spinnerRaceArrayAdapter.getPosition(npcObject.race.toString()))
 
             disableInput(editTextName)
             disableInput(editTextCharacteristics)
@@ -86,19 +87,16 @@ class NpcActivity : AppCompatActivity() {
         val name = editTextName.text.toString()
         val characteristics = editTextCharacteristics.text.toString()
         val history = editTextHistory.text.toString()
-
         val sex = spinnerSex.selectedItem.toString()
         val race = spinnerRace.selectedItem.toString()
 
-        npc = Npc(npc?.id ?: "", name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
+        npcObject = Npc(npcObject.id, name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
+//        npc.name = name
+//        npc.characteristics = characteristics
 
         val intentToReturn = Intent().apply {
-            putExtra(NPC_EXTRA, npc)
-            if (existsNPC) {
-                putExtra(NPC_ACTION_EXTRA, EDIT_NPC_EXTRA)
-            } else {
-                putExtra(NPC_ACTION_EXTRA, ADD_NPC_EXTRA)
-            }
+            putExtra(Extra.NPC_OBJECT, npcObject)
+            putExtra(Extra.NPC_ACTION, npcAction)
         }
         setResult(Activity.RESULT_OK, intentToReturn);
         finish()
@@ -117,11 +115,11 @@ class NpcActivity : AppCompatActivity() {
 
     private fun deleteNpc() {
         val intentToReturn = Intent().apply {
-            putExtra(NPC_EXTRA, npc)
-            putExtra(NPC_ACTION_EXTRA, DELETE_NPC_EXTRA)
+            putExtra(Extra.NPC_OBJECT, npcObject)
+            putExtra(Extra.NPC_ACTION, Action.DELETE)
         }
-        this@NpcActivity.setResult(Activity.RESULT_OK, intentToReturn);
-        this@NpcActivity.finish()
+        setResult(Activity.RESULT_OK, intentToReturn);
+        finish()
     }
 
     private fun showDialogDeleteNpc() {
