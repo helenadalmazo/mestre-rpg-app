@@ -122,25 +122,16 @@ class NpcActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun showDialogDeleteNpc() {
+    private fun showAlertDialogDeleteNpc() {
+        val alertDialogBuilder = AlertDialog.Builder(this)
 
-        val dialogDeleteBuilder = AlertDialog.Builder(this)
+        alertDialogBuilder.setTitle("Deletar NPC?")
+        alertDialogBuilder.setMessage("Você tem certeza que deseja deletar o NPC?")
 
-        dialogDeleteBuilder.setTitle("Deletar NPC?")
-        dialogDeleteBuilder.setMessage("Você tme certeza que deseja deletar o NPC?")
+        alertDialogBuilder.setPositiveButton("Deletar") { _, _ -> deleteNpc() }
+        alertDialogBuilder.setNegativeButton("Cancelar", null)
 
-
-        dialogDeleteBuilder.setPositiveButton("DELETAR"){dialog, which ->
-            deleteNpc()
-        }
-
-        dialogDeleteBuilder.setNegativeButton("Cancelar"){dialog,which ->
-
-        }
-
-        val dialog: AlertDialog = dialogDeleteBuilder.create()
-
-        dialog.show()
+        alertDialogBuilder.create().show()
     }
 
     private fun validateSpinnerMandatory(spinners: List<Spinner>): Boolean {
@@ -173,7 +164,7 @@ class NpcActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_delete -> {
-            showDialogDeleteNpc()
+            showAlertDialogDeleteNpc()
             true
         }
 
