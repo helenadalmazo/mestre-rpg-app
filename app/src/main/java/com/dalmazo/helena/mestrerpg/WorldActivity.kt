@@ -20,14 +20,13 @@ class WorldActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_world)
 
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
-
         world = intent.extras.getSerializable(EXTRA_ENTITY_WORLD) as World
 
         title = world.name
 
         startFragment(WorldFragment())
 
+        val navView = findViewById<BottomNavigationView>(R.id.nav_view)
         navView.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_world -> {
