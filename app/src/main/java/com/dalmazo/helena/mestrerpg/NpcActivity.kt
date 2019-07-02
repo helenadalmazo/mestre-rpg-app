@@ -67,15 +67,6 @@ class NpcActivity : AppCompatActivity() {
             disableInput(editTextCharacteristics)
             disableInput(editTextHistory)
         }
-
-//        val spinnerClass= findViewById<Spinner>(R.id.classs)
-//        val spinnerClassArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Classs.values().map { classs -> classs.toString() })
-//        spinnerClassArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        spinnerClass.adapter = spinnerClassArrayAdapter
-
-//        findViewById<Button>(R.id.npc_cancel).setOnClickListener { view ->
-//            finish()
-//        }
     }
 
     private fun saveNpc() {
