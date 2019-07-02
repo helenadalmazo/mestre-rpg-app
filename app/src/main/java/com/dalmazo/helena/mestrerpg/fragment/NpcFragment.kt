@@ -27,7 +27,7 @@ class NpcFragment : Fragment() {
 
     lateinit var npcAdapter: NpcAdapter
 
-    lateinit var menuItemSearch: MenuItem
+    lateinit var searchMenuItem: MenuItem
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle? ): View? {
         worldId = (activity as WorldActivity).world.id
@@ -93,23 +93,9 @@ class NpcFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.app_bar_actions_buttons_list, menu)
 
-        val expandListener = object : MenuItem.OnActionExpandListener {
-            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                Toast.makeText(activity, "onMenuItemActionCollapse", Toast.LENGTH_LONG).show()
-                return true // Return true to collapse action view
-            }
+        searchMenuItem = menu.findItem(R.id.action_search) as MenuItem
 
-            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                Toast.makeText(activity, "onMenuItemActionExpand", Toast.LENGTH_LONG).show()
-                return true // Return true to expand action view
-            }
-        }
-
-        val actionMenuItem = menu.findItem(R.id.action_search) as MenuItem
-
-        menuItemSearch = actionMenuItem
-
-        (actionMenuItem.actionView as SearchView).setOnQueryTextListener( object : SearchView.OnQueryTextListener {
+        (searchMenuItem.actionView as SearchView).setOnQueryTextListener( object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
             }
@@ -226,6 +212,6 @@ class NpcFragment : Fragment() {
         npcAdapter.clear()
         npcAdapter.addAll(npcs)
         npcAdapter.notifyDataSetChanged()
-        menuItemSearch.collapseActionView()
+        searchMenuItem.collapseActionView()
     }
 }
