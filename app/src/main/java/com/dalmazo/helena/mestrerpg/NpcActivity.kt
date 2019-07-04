@@ -16,13 +16,8 @@ import com.dalmazo.helena.mestrerpg.util.Extra
 
 class NpcActivity : AppCompatActivity() {
 
-    // padrão modo de edição = true, adicionar novo NPC
     var npcObject = Npc()
-
-    var existsNPC = false
     var editMode = true
-
-    lateinit var npcAction: Action
 
     lateinit var editTextName: EditText
     lateinit var editTextCharacteristics : EditText
@@ -50,11 +45,7 @@ class NpcActivity : AppCompatActivity() {
         spinnerRaceArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerRace.adapter = spinnerRaceArrayAdapter
 
-        npcAction = intent.getSerializableExtra(Extra.NPC_ACTION) as Action
-
-        if (npcAction == Action.EDIT) {
-            existsNPC = true
-            editMode = false
+        if (intent.getSerializableExtra(Extra.NPC_OBJECT) != null) {
             npcObject = intent.getSerializableExtra(Extra.NPC_OBJECT) as Npc
 
             editTextName.setText(npcObject.name, TextView.BufferType.EDITABLE)
@@ -63,10 +54,16 @@ class NpcActivity : AppCompatActivity() {
             spinnerSex.setSelection(spinnerSexArrayAdapter.getPosition(npcObject.sex.toString()))
             spinnerRace.setSelection(spinnerRaceArrayAdapter.getPosition(npcObject.race.toString()))
 
+            editMode = false
+
             disableInput(editTextName)
             disableInput(editTextCharacteristics)
             disableInput(editTextHistory)
         }
+    }
+
+    private fun existsNpcObject(): Boolean {
+        return npcObject.id != ""
     }
 
     private fun saveNpc() {
@@ -85,9 +82,10 @@ class NpcActivity : AppCompatActivity() {
 //        npc.name = name
 //        npc.characteristics = characteristics
 
+        val action: Action = if (existsNpcObject()) Action.EDIT else Action.ADD
         val intentToReturn = Intent().apply {
             putExtra(Extra.NPC_OBJECT, npcObject)
-            putExtra(Extra.NPC_ACTION, npcAction)
+            putExtra(Extra.NPC_ACTION, action)
         }
         setResult(Activity.RESULT_OK, intentToReturn);
         finish()
@@ -194,21 +192,26 @@ class NpcActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
-        if (existsNPC) {
-            menu?.findItem(R.id.action_delete)?.setVisible(true)
+        if (existsNpcObject()) {
+            menu?.findItem(R.id.action_delete)?.isVisible = true
+
+            if (editMode) {
+                menu?.findItem(R.id.action_undo)?.isVisible = true
+                menu?.findItem(R.id.action_edit)?.isVisible = false
+                menu?.findItem(R.id.action_save)?.isVisible = true
+            } else {
+                menu?.findItem(R.id.action_undo)?.isVisible = false
+                menu?.findItem(R.id.action_edit)?.isVisible = true
+                menu?.findItem(R.id.action_save)?.isVisible = false
+            }
+
         } else {
-            menu?.findItem(R.id.action_delete)?.setVisible(false)
+            menu?.findItem(R.id.action_undo)?.isVisible = false
+            menu?.findItem(R.id.action_delete)?.isVisible = false
+            menu?.findItem(R.id.action_edit)?.isVisible = false
+            menu?.findItem(R.id.action_save)?.isVisible = true
         }
 
-        if (editMode) {
-            menu?.findItem(R.id.action_undo)?.setVisible(true)
-            menu?.findItem(R.id.action_edit)?.setVisible(false)
-            menu?.findItem(R.id.action_save)?.setVisible(true)
-        } else {
-            menu?.findItem(R.id.action_undo)?.setVisible(false)
-            menu?.findItem(R.id.action_edit)?.setVisible(true)
-            menu?.findItem(R.id.action_save)?.setVisible(false)
-        }
         return super.onPrepareOptionsMenu(menu)
     }
 }
