@@ -154,6 +154,15 @@ class NpcActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_undo -> {
+            editMode = false
+            disableInput(editTextName)
+            disableInput(editTextCharacteristics)
+            disableInput(editTextHistory)
+            invalidateOptionsMenu()
+            true
+        }
+
         R.id.action_delete -> {
             showAlertDialogDeleteNpc()
             true
@@ -192,9 +201,11 @@ class NpcActivity : AppCompatActivity() {
         }
 
         if (editMode) {
+            menu?.findItem(R.id.action_undo)?.setVisible(true)
             menu?.findItem(R.id.action_edit)?.setVisible(false)
             menu?.findItem(R.id.action_save)?.setVisible(true)
         } else {
+            menu?.findItem(R.id.action_undo)?.setVisible(false)
             menu?.findItem(R.id.action_edit)?.setVisible(true)
             menu?.findItem(R.id.action_save)?.setVisible(false)
         }
