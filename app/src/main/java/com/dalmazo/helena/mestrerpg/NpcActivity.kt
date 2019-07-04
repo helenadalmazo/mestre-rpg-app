@@ -13,6 +13,7 @@ import com.dalmazo.helena.mestrerpg.enum.Race
 import com.dalmazo.helena.mestrerpg.enum.Sex
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.util.Extra
+import com.dalmazo.helena.mestrerpg.util.Utils
 
 class NpcActivity : AppCompatActivity() {
 
@@ -54,11 +55,7 @@ class NpcActivity : AppCompatActivity() {
             spinnerSex.setSelection(spinnerSexArrayAdapter.getPosition(npcObject.sex.toString()))
             spinnerRace.setSelection(spinnerRaceArrayAdapter.getPosition(npcObject.race.toString()))
 
-            editMode = false
-
-            disableInput(editTextName)
-            disableInput(editTextCharacteristics)
-            disableInput(editTextHistory)
+            changeToViewMode()
         }
     }
 
@@ -134,16 +131,18 @@ class NpcActivity : AppCompatActivity() {
         return valid
     }
 
-    private fun disableInput(textView: TextView) {
-        textView.setCursorVisible(false)
-        textView.setFocusableInTouchMode(false)
-        textView.setEnabled(false)
+    private fun changeToEditMode() {
+        editMode = true
+        Utils.enableEditText(editTextName)
+        Utils.enableEditText(editTextCharacteristics)
+        Utils.enableEditText(editTextHistory)
     }
 
-    private fun enableInput(textView: TextView) {
-        textView.setCursorVisible(true)
-        textView.setFocusableInTouchMode(true)
-        textView.setEnabled(true)
+    private fun changeToViewMode() {
+        editMode = false
+        Utils.disableEditText(editTextName)
+        Utils.disableEditText(editTextCharacteristics)
+        Utils.disableEditText(editTextHistory)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -153,10 +152,7 @@ class NpcActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_undo -> {
-            editMode = false
-            disableInput(editTextName)
-            disableInput(editTextCharacteristics)
-            disableInput(editTextHistory)
+            changeToViewMode()
             invalidateOptionsMenu()
             true
         }
@@ -167,10 +163,7 @@ class NpcActivity : AppCompatActivity() {
         }
 
         R.id.action_edit -> {
-            editMode = true
-            enableInput(editTextName)
-            enableInput(editTextCharacteristics)
-            enableInput(editTextHistory)
+            changeToEditMode()
             invalidateOptionsMenu()
             true
         }
