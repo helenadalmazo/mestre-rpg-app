@@ -178,29 +178,24 @@ class NpcActivity : AppCompatActivity() {
             }
             true
         }
-
         R.id.action_delete -> {
             showAlertDialogDeleteNpc()
             true
         }
-
         R.id.action_edit -> {
             changeToEditMode()
             invalidateOptionsMenu()
             true
         }
-
         R.id.action_save -> {
             saveNpc()
             true
         }
-
         android.R.id.home -> {
             setResult(Activity.RESULT_CANCELED, Intent());
             finish()
             true
         }
-
         else -> {
             super.onOptionsItemSelected(item)
         }
@@ -221,8 +216,8 @@ class NpcActivity : AppCompatActivity() {
             }
 
         } else {
-            menu?.findItem(R.id.action_undo)?.isVisible = false
             menu?.findItem(R.id.action_delete)?.isVisible = false
+            menu?.findItem(R.id.action_undo)?.isVisible = false
             menu?.findItem(R.id.action_edit)?.isVisible = false
             menu?.findItem(R.id.action_save)?.isVisible = true
         }
