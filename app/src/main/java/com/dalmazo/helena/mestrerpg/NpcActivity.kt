@@ -63,8 +63,7 @@ class NpcActivity : AppCompatActivity() {
     }
 
     private fun saveNpc() {
-        if (!validateEditTextMandatory(listOf(editTextName, editTextCharacteristics, editTextHistory)) &&
-            !validateSpinnerMandatory(listOf(spinnerSex, spinnerRace))) {
+        if (!validateEditTextMandatory(listOf(editTextName, editTextCharacteristics, editTextHistory))) {
             return
         }
 
@@ -136,17 +135,6 @@ class NpcActivity : AppCompatActivity() {
         alertDialogBuilder.setNegativeButton("Cancelar", null)
 
         alertDialogBuilder.create().show()
-    }
-
-    private fun validateSpinnerMandatory(spinners: List<Spinner>): Boolean {
-        var valid = true
-        spinners.forEach { spinner ->
-            if (spinner.selectedItem != null) {
-                (spinner.selectedView as TextView).error = "Campo obrigatório"
-                valid = false
-            }
-        }
-        return valid
     }
 
     private fun changeToEditMode() {
