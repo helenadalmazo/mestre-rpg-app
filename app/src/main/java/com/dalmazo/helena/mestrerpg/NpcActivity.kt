@@ -49,14 +49,27 @@ class NpcActivity : AppCompatActivity() {
         if (intent.getSerializableExtra(Extra.NPC_OBJECT) != null) {
             npcObject = intent.getSerializableExtra(Extra.NPC_OBJECT) as Npc
 
-            editTextName.setText(npcObject.name, TextView.BufferType.EDITABLE)
-            editTextCharacteristics.setText(npcObject.characteristics, TextView.BufferType.EDITABLE)
-            editTextHistory.setText(npcObject.history, TextView.BufferType.EDITABLE)
-            spinnerSex.setSelection(spinnerSexArrayAdapter.getPosition(npcObject.sex.toString()))
-            spinnerRace.setSelection(spinnerRaceArrayAdapter.getPosition(npcObject.race.toString()))
+            setFieldsValue(npcObject)
 
             changeToViewMode()
         }
+    }
+
+    private fun setFieldsValue(npc: Npc) {
+        editTextName.setText(npcObject.name, TextView.BufferType.EDITABLE)
+        editTextCharacteristics.setText(npcObject.characteristics, TextView.BufferType.EDITABLE)
+        editTextHistory.setText(npcObject.history, TextView.BufferType.EDITABLE)
+        spinnerSex.setSelection((spinnerSex.adapter as ArrayAdapter<String>).getPosition(npc.sex.toString()))
+        spinnerRace.setSelection((spinnerRace.adapter as ArrayAdapter<String>).getPosition(npc.race.toString()))
+    }
+
+    private fun buildNpcObject(): Npc {
+        val name = editTextName.text.toString()
+        val characteristics = editTextCharacteristics.text.toString()
+        val history = editTextHistory.text.toString()
+        val sex = spinnerSex.selectedItem.toString()
+        val race = spinnerRace.selectedItem.toString()
+        return Npc(npcObject.id, name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
     }
 
     private fun existsNpcObject(): Boolean {
@@ -69,19 +82,9 @@ class NpcActivity : AppCompatActivity() {
             return
         }
 
-        val name = editTextName.text.toString()
-        val characteristics = editTextCharacteristics.text.toString()
-        val history = editTextHistory.text.toString()
-        val sex = spinnerSex.selectedItem.toString()
-        val race = spinnerRace.selectedItem.toString()
-
-        npcObject = Npc(npcObject.id, name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
-//        npc.name = name
-//        npc.characteristics = characteristics
-
         val action: Action = if (existsNpcObject()) Action.EDIT else Action.ADD
         val intentToReturn = Intent().apply {
-            putExtra(Extra.NPC_OBJECT, npcObject)
+            putExtra(Extra.NPC_OBJECT, buildNpcObject())
             putExtra(Extra.NPC_ACTION, action)
         }
         setResult(Activity.RESULT_OK, intentToReturn);
