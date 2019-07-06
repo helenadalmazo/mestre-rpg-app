@@ -151,16 +151,20 @@ class NpcActivity : AppCompatActivity() {
 
     private fun changeToEditMode() {
         editMode = true
-        Utils.enableEditText(editTextName)
-        Utils.enableEditText(editTextCharacteristics)
-        Utils.enableEditText(editTextHistory)
+        editTextName.isEnabled = true
+        editTextCharacteristics.isEnabled = true
+        editTextHistory.isEnabled = true
+        spinnerSex.isEnabled = true
+        spinnerRace.isEnabled = true
     }
 
     private fun changeToViewMode() {
         editMode = false
-        Utils.disableEditText(editTextName)
-        Utils.disableEditText(editTextCharacteristics)
-        Utils.disableEditText(editTextHistory)
+        editTextName.isEnabled = false
+        editTextCharacteristics.isEnabled = false
+        editTextHistory.isEnabled = false
+        spinnerSex.isEnabled = false
+        spinnerRace.isEnabled = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
