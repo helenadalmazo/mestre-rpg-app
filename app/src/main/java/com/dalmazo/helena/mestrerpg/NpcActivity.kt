@@ -122,13 +122,13 @@ class NpcActivity : AppCompatActivity() {
         alertDialogBuilder.create().show()
     }
 
-    private fun showAlertDialogDiscardNpcChanges() {
+    private fun showAlertDialogUndoNpcChanges() {
         val alertDialogBuilder = AlertDialog.Builder(this)
 
-        alertDialogBuilder.setTitle("Descartar alterações?")
-        alertDialogBuilder.setMessage("Você tem certeza que deseja descartar as alterações que fez?")
+        alertDialogBuilder.setTitle("Desfazer alterações?")
+        alertDialogBuilder.setMessage("Você tem certeza que deseja desfazer as alterações?")
 
-        alertDialogBuilder.setPositiveButton("Descartar") { _, _ ->
+        alertDialogBuilder.setPositiveButton("Sim") { _, _ ->
             setFieldsValue()
             changeToViewMode()
             invalidateOptionsMenu()
@@ -174,7 +174,7 @@ class NpcActivity : AppCompatActivity() {
                 changeToViewMode()
                 invalidateOptionsMenu()
             } else {
-                showAlertDialogDiscardNpcChanges()
+                showAlertDialogUndoNpcChanges()
             }
             true
         }
