@@ -37,10 +37,7 @@ class NpcFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_npc, container, false)
 
         view.findViewById<FloatingActionButton>(R.id.npc_add).setOnClickListener {
-            val intent = Intent(activity, NpcActivity::class.java).apply {
-                putExtra(Extra.NPC_ACTION, Action.ADD)
-            }
-            startActivityForResult(intent, REQUEST_CODE_NPC)
+            startActivityForResult(Intent(activity, NpcActivity::class.java), REQUEST_CODE_NPC)
         }
 
         setNpcList(view)
@@ -66,7 +63,6 @@ class NpcFragment : Fragment() {
                     onItemClickListener = AdapterView.OnItemClickListener { adapter, _, position, _ ->
                         val npcClicked = adapter.getItemAtPosition(position) as Npc
                         val intent = Intent(activity, NpcActivity::class.java).apply {
-                            putExtra(Extra.NPC_ACTION, Action.EDIT)
                             putExtra(Extra.NPC_OBJECT, npcClicked)
                         }
                         startActivityForResult(intent, REQUEST_CODE_NPC)
