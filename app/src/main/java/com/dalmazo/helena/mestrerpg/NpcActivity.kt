@@ -13,7 +13,6 @@ import com.dalmazo.helena.mestrerpg.enum.Race
 import com.dalmazo.helena.mestrerpg.enum.Sex
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.util.Extra
-import com.dalmazo.helena.mestrerpg.util.Utils
 
 class NpcActivity : AppCompatActivity() {
 
@@ -63,9 +62,7 @@ class NpcActivity : AppCompatActivity() {
     }
 
     private fun saveNpc() {
-        if (!validateEditTextMandatory(listOf(editTextName, editTextCharacteristics, editTextHistory))) {
-            return
-        }
+        if (!validateEditTextsMandatory(listOf(editTextName, editTextCharacteristics, editTextHistory))) return
 
         val action: Action = if (existsNpcObject()) Action.EDIT else Action.ADD
         val intentToReturn = Intent().apply {
@@ -85,7 +82,7 @@ class NpcActivity : AppCompatActivity() {
         return Npc(npcObject.id, name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
     }
 
-    private fun validateEditTextMandatory(editTexts: List<EditText>): Boolean {
+    private fun validateEditTextsMandatory(editTexts: List<EditText>): Boolean {
         var valid = true
         editTexts.forEach { editText ->
             if (editText.length() < 1) {
