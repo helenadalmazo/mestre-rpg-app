@@ -49,18 +49,17 @@ class NpcActivity : AppCompatActivity() {
         if (intent.getSerializableExtra(Extra.NPC_OBJECT) != null) {
             npcObject = intent.getSerializableExtra(Extra.NPC_OBJECT) as Npc
 
-            setFieldsValue(npcObject)
-
+            setFieldsValue()
             changeToViewMode()
         }
     }
 
-    private fun setFieldsValue(npc: Npc) {
+    private fun setFieldsValue() {
         editTextName.setText(npcObject.name, TextView.BufferType.EDITABLE)
         editTextCharacteristics.setText(npcObject.characteristics, TextView.BufferType.EDITABLE)
         editTextHistory.setText(npcObject.history, TextView.BufferType.EDITABLE)
-        spinnerSex.setSelection((spinnerSex.adapter as ArrayAdapter<String>).getPosition(npc.sex.toString()))
-        spinnerRace.setSelection((spinnerRace.adapter as ArrayAdapter<String>).getPosition(npc.race.toString()))
+        spinnerSex.setSelection((spinnerSex.adapter as ArrayAdapter<String>).getPosition(npcObject.sex.toString()))
+        spinnerRace.setSelection((spinnerRace.adapter as ArrayAdapter<String>).getPosition(npcObject.race.toString()))
     }
 
     private fun buildNpcObject(): Npc {
@@ -123,6 +122,22 @@ class NpcActivity : AppCompatActivity() {
         alertDialogBuilder.create().show()
     }
 
+    private fun showAlertDialogDiscardNpcChanges() {
+        val alertDialogBuilder = AlertDialog.Builder(this)
+
+        alertDialogBuilder.setTitle("Descartar alterações?")
+        alertDialogBuilder.setMessage("Você tem certeza que deseja descartar as alterações que fez?")
+
+        alertDialogBuilder.setPositiveButton("Descartar") { _, _ ->
+            setFieldsValue()
+            changeToViewMode()
+            invalidateOptionsMenu()
+        }
+        alertDialogBuilder.setNegativeButton("Cancelar", null)
+
+        alertDialogBuilder.create().show()
+    }
+
     private fun validateSpinnerMandatory(spinners: List<Spinner>): Boolean {
         var valid = true
         spinners.forEach { spinner ->
@@ -155,8 +170,12 @@ class NpcActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
         R.id.action_undo -> {
-            changeToViewMode()
-            invalidateOptionsMenu()
+            if (npcObject.equals(buildNpcObject())) {
+                changeToViewMode()
+                invalidateOptionsMenu()
+            } else {
+                showAlertDialogDiscardNpcChanges()
+            }
             true
         }
 
