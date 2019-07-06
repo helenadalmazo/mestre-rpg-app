@@ -62,19 +62,6 @@ class NpcActivity : AppCompatActivity() {
         spinnerRace.setSelection((spinnerRace.adapter as ArrayAdapter<String>).getPosition(npcObject.race.toString()))
     }
 
-    private fun buildNpcObject(): Npc {
-        val name = editTextName.text.toString()
-        val characteristics = editTextCharacteristics.text.toString()
-        val history = editTextHistory.text.toString()
-        val sex = spinnerSex.selectedItem.toString()
-        val race = spinnerRace.selectedItem.toString()
-        return Npc(npcObject.id, name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
-    }
-
-    private fun existsNpcObject(): Boolean {
-        return npcObject.id != ""
-    }
-
     private fun saveNpc() {
         if (!validateEditTextMandatory(listOf(editTextName, editTextCharacteristics, editTextHistory)) &&
             !validateSpinnerMandatory(listOf(spinnerSex, spinnerRace))) {
@@ -88,6 +75,15 @@ class NpcActivity : AppCompatActivity() {
         }
         setResult(Activity.RESULT_OK, intentToReturn);
         finish()
+    }
+
+    private fun buildNpcObject(): Npc {
+        val name = editTextName.text.toString()
+        val characteristics = editTextCharacteristics.text.toString()
+        val history = editTextHistory.text.toString()
+        val sex = spinnerSex.selectedItem.toString()
+        val race = spinnerRace.selectedItem.toString()
+        return Npc(npcObject.id, name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
     }
 
     private fun validateEditTextMandatory(editTexts: List<EditText>): Boolean {
@@ -108,6 +104,10 @@ class NpcActivity : AppCompatActivity() {
         }
         setResult(Activity.RESULT_OK, intentToReturn);
         finish()
+    }
+
+    private fun existsNpcObject(): Boolean {
+        return npcObject.id != ""
     }
 
     private fun showAlertDialogDeleteNpc() {
