@@ -169,6 +169,10 @@ class NpcActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_delete -> {
+            showAlertDialogDeleteNpc()
+            true
+        }
         R.id.action_undo -> {
             if (npcObject.equals(buildNpcObject())) {
                 changeToViewMode()
@@ -176,10 +180,6 @@ class NpcActivity : AppCompatActivity() {
             } else {
                 showAlertDialogUndoNpcChanges()
             }
-            true
-        }
-        R.id.action_delete -> {
-            showAlertDialogDeleteNpc()
             true
         }
         R.id.action_edit -> {
