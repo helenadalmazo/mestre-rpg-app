@@ -96,6 +96,7 @@ class NpcFragment : Fragment() {
                 uploadTask.addOnProgressListener { taskSnapshot ->
                     val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
                     println("### Upload is $progress% done")
+                    npcAdapter.notifyDataSetChanged()
                 }.addOnPausedListener {
                     println("### Upload is paused")
                 }.addOnFailureListener {
