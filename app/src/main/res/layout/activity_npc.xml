@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
@@ -9,39 +9,27 @@
     <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/image"/>
+            android:id="@+id/image"
+            android:layout_centerInParent="false"
+            android:background="@color/colorPrimaryDark"/>
 
-    <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
+    <ImageButton
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="32dp"
-            android:layout_marginRight="32dp">
-
-        <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@android:drawable/ic_menu_camera"
-                android:layout_weight="1"
-                android:background="#00FFFFFF"
-                android:onClick="takeImageFromCamera"
-                android:id="@+id/takeImageFromCamera"/>
-        <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@android:drawable/ic_menu_gallery"
-                android:layout_weight="1"
-                android:background="#05FFFFFF"
-                android:onClick="chooseImageFromGallery"
-                android:id="@+id/chooseImageFromGallery"/>
-    </LinearLayout>
+            android:id="@+id/edit_image"
+            app:srcCompat="@drawable/ic_add_a_photo_white_24dp"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_alignBottom="@id/image"
+            android:layout_alignRight="@id/image"
+            android:onClick="showBottomSheetDialogEditImage"/>
 
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingLeft="16dp"
-            android:paddingRight="16dp">
+            android:paddingRight="16dp"
+            android:layout_below="@id/image">
 
         <TextView
                 android:text="@string/attr_name"
@@ -95,4 +83,5 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/race"/>
     </LinearLayout>
-</LinearLayout>
+
+</RelativeLayout>

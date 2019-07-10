@@ -164,8 +164,7 @@ class NpcActivity : AppCompatActivity() {
         editTextHistory.isEnabled = true
         spinnerSex.isEnabled = true
         spinnerRace.isEnabled = true
-        findViewById<ImageButton>(R.id.takeImageFromCamera).visibility = View.VISIBLE
-        findViewById<ImageButton>(R.id.chooseImageFromGallery).visibility = View.VISIBLE
+        findViewById<ImageButton>(R.id.edit_image).visibility = View.VISIBLE
     }
 
     private fun changeToViewMode() {
@@ -175,12 +174,11 @@ class NpcActivity : AppCompatActivity() {
         editTextHistory.isEnabled = false
         spinnerSex.isEnabled = false
         spinnerRace.isEnabled = false
-        findViewById<ImageButton>(R.id.takeImageFromCamera).visibility = View.INVISIBLE
-        findViewById<ImageButton>(R.id.chooseImageFromGallery).visibility = View.INVISIBLE
+        findViewById<ImageButton>(R.id.edit_image).visibility = View.INVISIBLE
     }
 
     fun chooseImageFromGallery(view: View) {
-        startActivityForResult(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), REQUEST_GALLERY_IMAGE);
+        startActivityForResult(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), REQUEST_GALLERY_IMAGE)
     }
 
     fun takeImageFromCamera(view: View) {
