@@ -18,6 +18,7 @@ import com.dalmazo.helena.mestrerpg.util.Extra
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
 
 class NpcActivity : AppCompatActivity() {
@@ -175,6 +176,12 @@ class NpcActivity : AppCompatActivity() {
         spinnerSex.isEnabled = false
         spinnerRace.isEnabled = false
         findViewById<ImageButton>(R.id.edit_image).visibility = View.INVISIBLE
+    }
+
+    fun showBottomSheetDialogEditImage(view: View) {
+        val bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog.setContentView(layoutInflater.inflate(R.layout.bottom_sheet_dialog_edit_image, null))
+        bottomSheetDialog.show()
     }
 
     fun chooseImageFromGallery(view: View) {
