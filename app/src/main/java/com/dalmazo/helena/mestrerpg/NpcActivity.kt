@@ -91,7 +91,17 @@ class NpcActivity : AppCompatActivity() {
         val intentToReturn = Intent().apply {
             putExtra(Extra.NPC_OBJECT, buildNpcObject())
             putExtra(Extra.NPC_ACTION, action)
-            if (imageChanged) { putExtra(Extra.NPC_IMAGE, (imageViewNpc.drawable as BitmapDrawable).bitmap) }
+            if (imageChanged) {
+                val npcImageBitmap: Bitmap?
+                if (imageViewNpc.drawable != null) {
+                    npcImageBitmap = (imageViewNpc.drawable as BitmapDrawable).bitmap
+                    putExtra(Extra.NPC_IMAGE_ACTION, Action.EDIT)
+                } else {
+                    npcImageBitmap = null
+                    putExtra(Extra.NPC_IMAGE_ACTION, Action.DELETE)
+                }
+                putExtra(Extra.NPC_IMAGE, npcImageBitmap)
+            }
         }
         setResult(Activity.RESULT_OK, intentToReturn);
         finish()

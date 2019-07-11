@@ -86,23 +86,36 @@ class NpcFragment : Fragment() {
                 Action.DELETE -> deleteNpcFirestore(npc)
             }
 
-            if (data.getParcelableExtra<Bitmap>(Extra.NPC_IMAGE) != null) {
+            if (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) != null) {
                 val image = data.getParcelableExtra<Bitmap>(Extra.NPC_IMAGE)
 
-                val baos = ByteArrayOutputStream()
-                image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                when (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION)) {
+                    Action.EDIT -> {
+                        val baos = ByteArrayOutputStream()
+                        image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
 
-                val uploadTask = FirebaseStorage.getInstance().reference.child("npcs/${npc.id}.jpg").putBytes(baos.toByteArray())
-                uploadTask.addOnProgressListener { taskSnapshot ->
-                    val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
-                    println("### Upload is $progress% done")
-                    npcAdapter.notifyDataSetChanged()
-                }.addOnPausedListener {
-                    println("### Upload is paused")
-                }.addOnFailureListener {
-                    println("### Upload failure")
-                }.addOnSuccessListener {
-                    println("### Upload success")
+                        val uploadTask = FirebaseStorage.getInstance().reference.child("npcs/${npc.id}.jpg")
+                            .putBytes(baos.toByteArray())
+                        uploadTask.addOnProgressListener { taskSnapshot ->
+                            val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
+                            println("### Upload is $progress% done")
+                            npcAdapter.notifyDataSetChanged()
+                        }.addOnPausedListener {
+                            println("### Upload is paused")
+                        }.addOnFailureListener {
+                            println("### Upload failure")
+                        }.addOnSuccessListener {
+                            println("### Upload success")
+                        }
+                    }
+                    Action.DELETE -> {
+                        val deleteTask = FirebaseStorage.getInstance().reference.child("npcs/${npc.id}.jpg").delete()
+                        deleteTask.addOnSuccessListener {
+                            println("### Imagem removida com sucesso")
+                        }.addOnFailureListener {
+                            println("### Imagem não removida")
+                        }
+                    }
                 }
             }
         }
