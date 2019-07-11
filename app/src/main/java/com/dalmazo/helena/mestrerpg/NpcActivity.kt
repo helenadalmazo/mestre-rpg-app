@@ -179,21 +179,42 @@ class NpcActivity : AppCompatActivity() {
     }
 
     fun showBottomSheetDialogEditImage(view: View) {
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_dialog_edit_image, null)
+
         val bottomSheetDialog = BottomSheetDialog(this)
-        bottomSheetDialog.setContentView(layoutInflater.inflate(R.layout.bottom_sheet_dialog_edit_image, null))
+        bottomSheetDialog.setContentView(view)
+
+        view.findViewById<TextView>(R.id.take_image_from_camera).setOnClickListener {
+            bottomSheetDialog.dismiss()
+            takeImageFromCamera()
+        }
+        view.findViewById<TextView>(R.id.choose_image_from_gallery).setOnClickListener {
+            bottomSheetDialog.dismiss()
+            chooseImageFromGallery()
+        }
+        view.findViewById<TextView>(R.id.remove_image).setOnClickListener {
+            bottomSheetDialog.dismiss()
+            removeImage()
+        }
+
         bottomSheetDialog.show()
     }
 
-    fun chooseImageFromGallery(view: View) {
+    private fun chooseImageFromGallery() {
         startActivityForResult(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), REQUEST_GALLERY_IMAGE)
     }
 
-    fun takeImageFromCamera(view: View) {
+    private fun takeImageFromCamera() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takeCameraImageIntent ->
             takeCameraImageIntent.resolveActivity(packageManager)?.also {
                 startActivityForResult(takeCameraImageIntent, REQUEST_CAMERA_IMAGE)
             }
         }
+    }
+
+    fun removeImage() {
+        imageChanged = true
+        imageViewNpc.setImageDrawable(null)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
