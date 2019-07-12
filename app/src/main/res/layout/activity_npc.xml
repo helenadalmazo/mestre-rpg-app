@@ -32,6 +32,21 @@
             android:layout_below="@id/image">
 
         <TextView
+                android:text="Imagem"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:textSize="@dimen/font_size"
+                android:drawableLeft="@drawable/ic_add_a_photo_white_24dp"
+                android:drawableStart="@drawable/ic_add_a_photo_white_24dp"
+                android:drawableTint="#8a000000"
+                android:drawablePadding="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:id="@+id/add_image"
+                android:onClick="showBottomSheetDialogEditImage"/>
+        <TextView
                 android:text="@string/attr_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

@@ -76,7 +76,7 @@ class NpcActivity : AppCompatActivity() {
     }
 
     private fun setFieldsValue() {
-        if (npcImage != null) imageViewNpc.setImageBitmap(npcImage)
+        imageViewNpc.setImageBitmap(npcImage)
         editTextName.setText(npcObject.name, TextView.BufferType.EDITABLE)
         editTextCharacteristics.setText(npcObject.characteristics, TextView.BufferType.EDITABLE)
         editTextHistory.setText(npcObject.history, TextView.BufferType.EDITABLE)
@@ -176,6 +176,7 @@ class NpcActivity : AppCompatActivity() {
         spinnerSex.isEnabled = true
         spinnerRace.isEnabled = true
         findViewById<ImageButton>(R.id.edit_image).visibility = View.VISIBLE
+        if (npcImage == null) findViewById<TextView>(R.id.add_image).visibility = View.VISIBLE
     }
 
     private fun changeToViewMode() {
@@ -185,7 +186,8 @@ class NpcActivity : AppCompatActivity() {
         editTextHistory.isEnabled = false
         spinnerSex.isEnabled = false
         spinnerRace.isEnabled = false
-        findViewById<ImageButton>(R.id.edit_image).visibility = View.INVISIBLE
+        findViewById<ImageButton>(R.id.edit_image).visibility = View.GONE
+        findViewById<TextView>(R.id.add_image).visibility = View.GONE
     }
 
     fun showBottomSheetDialogEditImage(view: View) {
@@ -206,6 +208,7 @@ class NpcActivity : AppCompatActivity() {
             bottomSheetDialog.dismiss()
             removeImage()
         }
+        if (npcImage == null) view.findViewById<TextView>(R.id.remove_image).visibility = View.GONE
 
         bottomSheetDialog.show()
     }
@@ -225,11 +228,11 @@ class NpcActivity : AppCompatActivity() {
     fun removeImage() {
         imageChanged = true
         imageViewNpc.setImageDrawable(null)
+        findViewById<TextView>(R.id.add_image).visibility = View.VISIBLE
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
-            imageChanged = true
 
             if (requestCode == REQUEST_GALLERY_IMAGE) {
                 imageViewNpc.setImageURI(data?.data)
@@ -237,6 +240,9 @@ class NpcActivity : AppCompatActivity() {
                 val image = data?.extras?.get("data") as Bitmap
                 imageViewNpc.setImageBitmap(image)
             }
+
+            imageChanged = true
+            findViewById<TextView>(R.id.add_image).visibility = View.GONE
         }
 
         super.onActivityResult(requestCode, resultCode, data)
