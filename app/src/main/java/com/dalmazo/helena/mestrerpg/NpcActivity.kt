@@ -4,8 +4,10 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.dalmazo.helena.mestrerpg.enum.Action
@@ -13,12 +15,24 @@ import com.dalmazo.helena.mestrerpg.enum.Race
 import com.dalmazo.helena.mestrerpg.enum.Sex
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.util.Extra
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.storage.FirebaseStorage
 
 class NpcActivity : AppCompatActivity() {
 
+    val REQUEST_GALLERY_IMAGE = 1111
+    val REQUEST_CAMERA_IMAGE = 2222
+
     var npcObject = Npc()
+    var npcImage: Bitmap? = null
     var editMode = true
 
+    var imageChanged = false
+
+    lateinit var imageViewNpc: ImageView
     lateinit var editTextName: EditText
     lateinit var editTextCharacteristics : EditText
     lateinit var editTextHistory: EditText
@@ -31,6 +45,7 @@ class NpcActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        imageViewNpc = findViewById<ImageView>(R.id.image)
         editTextName = findViewById<EditText>(R.id.name)
         editTextCharacteristics = findViewById<EditText>(R.id.characteristics)
         editTextHistory = findViewById<EditText>(R.id.history)
@@ -48,12 +63,20 @@ class NpcActivity : AppCompatActivity() {
         if (intent.getSerializableExtra(Extra.NPC_OBJECT) != null) {
             npcObject = intent.getSerializableExtra(Extra.NPC_OBJECT) as Npc
 
+            FirebaseStorage.getInstance().reference
+                .child("npcs/${npcObject.id}.jpg").getBytes(1024*1024)
+                .addOnSuccessListener { bytes ->
+                    npcImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    imageViewNpc.setImageBitmap(npcImage)
+                }
+
             setFieldsValue()
             changeToViewMode()
         }
     }
 
     private fun setFieldsValue() {
+        imageViewNpc.setImageBitmap(npcImage)
         editTextName.setText(npcObject.name, TextView.BufferType.EDITABLE)
         editTextCharacteristics.setText(npcObject.characteristics, TextView.BufferType.EDITABLE)
         editTextHistory.setText(npcObject.history, TextView.BufferType.EDITABLE)
@@ -68,6 +91,17 @@ class NpcActivity : AppCompatActivity() {
         val intentToReturn = Intent().apply {
             putExtra(Extra.NPC_OBJECT, buildNpcObject())
             putExtra(Extra.NPC_ACTION, action)
+            if (imageChanged) {
+                val npcImageBitmap: Bitmap?
+                if (imageViewNpc.drawable != null) {
+                    npcImageBitmap = (imageViewNpc.drawable as BitmapDrawable).bitmap
+                    putExtra(Extra.NPC_IMAGE_ACTION, Action.EDIT)
+                } else {
+                    npcImageBitmap = null
+                    putExtra(Extra.NPC_IMAGE_ACTION, Action.DELETE)
+                }
+                putExtra(Extra.NPC_IMAGE, npcImageBitmap)
+            }
         }
         setResult(Activity.RESULT_OK, intentToReturn);
         finish()
@@ -141,6 +175,8 @@ class NpcActivity : AppCompatActivity() {
         editTextHistory.isEnabled = true
         spinnerSex.isEnabled = true
         spinnerRace.isEnabled = true
+        findViewById<ImageButton>(R.id.edit_image).visibility = View.VISIBLE
+        if (npcImage == null) findViewById<TextView>(R.id.add_image).visibility = View.VISIBLE
     }
 
     private fun changeToViewMode() {
@@ -150,6 +186,66 @@ class NpcActivity : AppCompatActivity() {
         editTextHistory.isEnabled = false
         spinnerSex.isEnabled = false
         spinnerRace.isEnabled = false
+        findViewById<ImageButton>(R.id.edit_image).visibility = View.GONE
+        findViewById<TextView>(R.id.add_image).visibility = View.GONE
+    }
+
+    fun showBottomSheetDialogEditImage(view: View) {
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_dialog_edit_image, null)
+
+        val bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog.setContentView(view)
+
+        view.findViewById<TextView>(R.id.take_image_from_camera).setOnClickListener {
+            bottomSheetDialog.dismiss()
+            takeImageFromCamera()
+        }
+        view.findViewById<TextView>(R.id.choose_image_from_gallery).setOnClickListener {
+            bottomSheetDialog.dismiss()
+            chooseImageFromGallery()
+        }
+        view.findViewById<TextView>(R.id.remove_image).setOnClickListener {
+            bottomSheetDialog.dismiss()
+            removeImage()
+        }
+        if (npcImage == null) view.findViewById<TextView>(R.id.remove_image).visibility = View.GONE
+
+        bottomSheetDialog.show()
+    }
+
+    private fun chooseImageFromGallery() {
+        startActivityForResult(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), REQUEST_GALLERY_IMAGE)
+    }
+
+    private fun takeImageFromCamera() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takeCameraImageIntent ->
+            takeCameraImageIntent.resolveActivity(packageManager)?.also {
+                startActivityForResult(takeCameraImageIntent, REQUEST_CAMERA_IMAGE)
+            }
+        }
+    }
+
+    fun removeImage() {
+        imageChanged = true
+        imageViewNpc.setImageDrawable(null)
+        findViewById<TextView>(R.id.add_image).visibility = View.VISIBLE
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+
+            if (requestCode == REQUEST_GALLERY_IMAGE) {
+                imageViewNpc.setImageURI(data?.data)
+            } else if (requestCode == REQUEST_CAMERA_IMAGE) {
+                val image = data?.extras?.get("data") as Bitmap
+                imageViewNpc.setImageBitmap(image)
+            }
+
+            imageChanged = true
+            findViewById<TextView>(R.id.add_image).visibility = View.GONE
+        }
+
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -1,0 +1,60 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <TextView
+            android:text="Adicionar imagem"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/font_size"
+            android:padding="16dp"/>
+    <TextView
+            android:text="Câmera"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/font_size"
+            android:drawableLeft="@android:drawable/ic_menu_camera"
+            android:drawableStart="@android:drawable/ic_menu_camera"
+            android:drawablePadding="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="16dp"
+            android:id="@+id/take_image_from_camera"/>
+    <TextView
+            android:text="Galeria"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/font_size"
+            android:drawableLeft="@android:drawable/ic_menu_gallery"
+            android:drawableStart="@android:drawable/ic_menu_gallery"
+            android:drawablePadding="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="16dp"
+            android:id="@+id/choose_image_from_gallery"/>
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?android:attr/listDivider"/>
+    <TextView
+            android:text="Remover imagem"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:textSize="@dimen/font_size"
+            android:drawableLeft="@android:drawable/ic_menu_delete"
+            android:drawableStart="@android:drawable/ic_menu_delete"
+            android:drawablePadding="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:padding="16dp"
+            android:id="@+id/remove_image"/>
+</LinearLayout>

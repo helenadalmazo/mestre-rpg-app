@@ -3,6 +3,8 @@ package com.dalmazo.helena.mestrerpg.fragment
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.*
 import android.widget.*
@@ -16,6 +18,8 @@ import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import java.io.ByteArrayOutputStream
 
 class NpcFragment : Fragment() {
 
@@ -76,10 +80,43 @@ class NpcFragment : Fragment() {
 
             val npc = data?.getSerializableExtra(Extra.NPC_OBJECT) as Npc
 
-            when (data?.getSerializableExtra(Extra.NPC_ACTION)) {
+            when (data.getSerializableExtra(Extra.NPC_ACTION)) {
                 Action.ADD -> addNpcFirestore(npc)
                 Action.EDIT -> editNpcFirestore(npc)
                 Action.DELETE -> deleteNpcFirestore(npc)
+            }
+
+            if (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) != null) {
+                val image = data.getParcelableExtra<Bitmap>(Extra.NPC_IMAGE)
+
+                when (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION)) {
+                    Action.EDIT -> {
+                        val baos = ByteArrayOutputStream()
+                        image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+
+                        val uploadTask = FirebaseStorage.getInstance().reference.child("npcs/${npc.id}.jpg")
+                            .putBytes(baos.toByteArray())
+                        uploadTask.addOnProgressListener { taskSnapshot ->
+                            val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
+                            println("### Upload is $progress% done")
+                            npcAdapter.notifyDataSetChanged()
+                        }.addOnPausedListener {
+                            println("### Upload is paused")
+                        }.addOnFailureListener {
+                            println("### Upload failure")
+                        }.addOnSuccessListener {
+                            println("### Upload success")
+                        }
+                    }
+                    Action.DELETE -> {
+                        val deleteTask = FirebaseStorage.getInstance().reference.child("npcs/${npc.id}.jpg").delete()
+                        deleteTask.addOnSuccessListener {
+                            println("### Imagem removida com sucesso")
+                        }.addOnFailureListener {
+                            println("### Imagem não removida")
+                        }
+                    }
+                }
             }
         }
 
@@ -110,7 +147,17 @@ class NpcFragment : Fragment() {
             val rowView: View = layoutInflater.inflate(R.layout.basic_list_item, null, false);
 
             val npc = getItem(position) as Npc
-            rowView.findViewById<ImageView>(R.id.item_image).setImageResource(R.mipmap.ic_launcher) // TODO implementar imageResource
+
+            rowView.findViewById<ImageView>(R.id.item_image).setImageResource(R.mipmap.ic_launcher)
+
+            FirebaseStorage.getInstance().reference
+                .child("npcs/${npc.id}.jpg")
+                .getBytes(1024 * 1024)
+                .addOnSuccessListener { bytes ->
+                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    rowView.findViewById<ImageView>(R.id.item_image).setImageBitmap(bitmap)
+                }
+
             rowView.findViewById<TextView>(R.id.item_name).text = npc.name
 
             return rowView

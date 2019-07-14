@@ -1,60 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-    <TextView
-            android:text="@string/attr_name"
+    <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size"/>
-    <EditText
-            android:layout_width="match_parent"
+            android:id="@+id/image"
+            android:layout_centerInParent="false"
+            android:background="@color/colorPrimaryDark"/>
+
+    <ImageButton
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:ems="10"
-            android:id="@+id/name"/>
-    <TextView
-            android:text="@string/attr_characteristics"
+            android:id="@+id/edit_image"
+            app:srcCompat="@drawable/ic_add_a_photo_white_24dp"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_alignBottom="@id/image"
+            android:layout_alignRight="@id/image"
+            android:onClick="showBottomSheetDialogEditImage"/>
+
+    <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size"/>
-    <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:ems="10"
-            android:id="@+id/characteristics"/>
-    <TextView
-            android:text="@string/attr_history"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size"/>
-    <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:ems="10"
-            android:id="@+id/history"/>
-    <TextView
-            android:text="@string/attr_sex"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size"/>
-    <Spinner
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/sex"/>
-    <TextView
-            android:text="@string/attr_race"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size"/>
-    <Spinner
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/race"/>
-</LinearLayout>
+            android:layout_height="match_parent"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_below="@id/image">
+
+        <TextView
+                android:text="Imagem"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:gravity="center_vertical"
+                android:textSize="@dimen/font_size"
+                android:drawableLeft="@drawable/ic_add_a_photo_white_24dp"
+                android:drawableStart="@drawable/ic_add_a_photo_white_24dp"
+                android:drawableTint="#8a000000"
+                android:drawablePadding="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:id="@+id/add_image"
+                android:onClick="showBottomSheetDialogEditImage"/>
+        <TextView
+                android:text="@string/attr_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/font_size"/>
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:ems="10"
+                android:id="@+id/name"/>
+        <TextView
+                android:text="@string/attr_characteristics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/font_size"/>
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:ems="10"
+                android:id="@+id/characteristics"/>
+        <TextView
+                android:text="@string/attr_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/font_size"/>
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:ems="10"
+                android:id="@+id/history"/>
+        <TextView
+                android:text="@string/attr_sex"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/font_size"/>
+        <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/sex"/>
+        <TextView
+                android:text="@string/attr_race"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/font_size"/>
+        <Spinner
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/race"/>
+    </LinearLayout>
+
+</RelativeLayout>
