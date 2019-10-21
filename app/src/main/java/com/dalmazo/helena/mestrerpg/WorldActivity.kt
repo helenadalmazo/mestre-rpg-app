@@ -20,9 +20,13 @@ class WorldActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_world)
 
-        world = intent.extras.getSerializable(EXTRA_ENTITY_WORLD) as World
-
-        title = world.name
+        if (intent.extras == null) {
+            world = World()
+            title = "Novo mundo"
+        } else {
+            world = intent.extras.getSerializable(EXTRA_ENTITY_WORLD) as World
+            title = world.name
+        }
 
         startFragment(WorldFragment())
 
