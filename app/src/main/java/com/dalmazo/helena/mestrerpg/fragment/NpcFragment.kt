@@ -1,16 +1,15 @@
 package com.dalmazo.helena.mestrerpg.fragment
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.dalmazo.helena.mestrerpg.WorldActivity
 import com.dalmazo.helena.mestrerpg.NpcActivity
 import com.dalmazo.helena.mestrerpg.R
@@ -21,7 +20,6 @@ import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.android.synthetic.main.fragment_npc.*
 import java.io.ByteArrayOutputStream
 
 class NpcFragment : Fragment() {
@@ -62,8 +60,9 @@ class NpcFragment : Fragment() {
                 }
 
                 npcAdapter = NpcAdapter(this, npcs)
-                npc_list.adapter = npcAdapter
-                npc_list.layoutManager = LinearLayoutManager(activity)
+                val recyclerView = view.findViewById(R.id.npc_list) as RecyclerView
+                recyclerView.adapter = npcAdapter
+                recyclerView.layoutManager = LinearLayoutManager(activity)
             }
     }
 
