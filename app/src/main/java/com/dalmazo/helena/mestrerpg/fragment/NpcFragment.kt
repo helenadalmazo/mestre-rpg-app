@@ -10,15 +10,18 @@ import android.view.*
 import android.widget.*
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dalmazo.helena.mestrerpg.WorldActivity
 import com.dalmazo.helena.mestrerpg.NpcActivity
 import com.dalmazo.helena.mestrerpg.R
+import com.dalmazo.helena.mestrerpg.adapter.NpcAdapter
 import com.dalmazo.helena.mestrerpg.enum.Action
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.android.synthetic.main.fragment_npc.*
 import java.io.ByteArrayOutputStream
 
 class NpcFragment : Fragment() {
@@ -30,8 +33,6 @@ class NpcFragment : Fragment() {
     var npcs: MutableList<Npc> = mutableListOf()
 
     lateinit var npcAdapter: NpcAdapter
-
-    lateinit var searchMenuItem: MenuItem
 
     override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle? ): View? {
         worldId = (activity as WorldActivity).world.id
@@ -60,18 +61,9 @@ class NpcFragment : Fragment() {
                     npcs.add(npc)
                 }
 
-                npcAdapter = NpcAdapter(activity as WorldActivity, npcs.toList())
-
-                (view.findViewById<ListView>(R.id.npc_list)).apply {
-                    adapter = npcAdapter
-                    onItemClickListener = AdapterView.OnItemClickListener { adapter, _, position, _ ->
-                        val npcClicked = adapter.getItemAtPosition(position) as Npc
-                        val intent = Intent(activity, NpcActivity::class.java).apply {
-                            putExtra(Extra.NPC_OBJECT, npcClicked)
-                        }
-                        startActivityForResult(intent, REQUEST_CODE_NPC)
-                    }
-                }
+                npcAdapter = NpcAdapter(this, npcs)
+                npc_list.adapter = npcAdapter
+                npc_list.layoutManager = LinearLayoutManager(activity)
             }
     }
 
@@ -126,7 +118,7 @@ class NpcFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.app_bar_actions_buttons_list, menu)
 
-        searchMenuItem = menu.findItem(R.id.action_search) as MenuItem
+        val searchMenuItem = menu.findItem(R.id.action_search) as MenuItem
 
         (searchMenuItem.actionView as SearchView).setOnQueryTextListener( object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -141,62 +133,6 @@ class NpcFragment : Fragment() {
         })
     }
 
-    inner class NpcAdapter(context: Context, npcs: List<Npc>) : ArrayAdapter<Npc>(context, R.layout.basic_list_item, npcs) {
-
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val rowView: View = layoutInflater.inflate(R.layout.basic_list_item, null, false);
-
-            val npc = getItem(position) as Npc
-
-            rowView.findViewById<ImageView>(R.id.item_image).setImageResource(R.mipmap.ic_launcher)
-
-            FirebaseStorage.getInstance().reference
-                .child("npcs/${npc.id}.jpg")
-                .getBytes(1024 * 1024)
-                .addOnSuccessListener { bytes ->
-                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    rowView.findViewById<ImageView>(R.id.item_image).setImageBitmap(bitmap)
-                }
-
-            rowView.findViewById<TextView>(R.id.item_name).text = npc.name
-
-            return rowView
-        }
-
-        override fun getFilter() = object : Filter() {
-            override fun performFiltering(constraint: CharSequence?): FilterResults {
-
-                val originalNpcs = this@NpcFragment.npcs.toList()
-                val results = FilterResults()
-
-                results.values = originalNpcs
-                results.count = originalNpcs.size
-
-                if (constraint != null && constraint != "") {
-                    val filteredNpcs: MutableList<Npc> = mutableListOf()
-
-                    for (currentNpc in originalNpcs){
-                        if (currentNpc.name.toLowerCase().contains(constraint.toString().toLowerCase())){
-                            filteredNpcs.add(currentNpc);
-                        }
-                    }
-
-                    results.values = filteredNpcs
-                    results.count = filteredNpcs.size
-                }
-
-                return results
-            }
-
-            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-                clear()
-                addAll(results?.values as List<Npc>)
-                notifyDataSetChanged()
-            }
-
-        }
-    }
-
     private fun addNpcFirestore(npc: Npc) {
         FirebaseFirestore.getInstance()
             .collection("worlds").document(worldId)
@@ -204,9 +140,8 @@ class NpcFragment : Fragment() {
             .add(npc)
             .addOnSuccessListener { documentReference ->
                 npc.id = documentReference.id
-                npcs.add(npc)
 
-                updateNpcList()
+                npcAdapter.add(npc)
 
                 Toast.makeText(activity, "NPC ${npc.name} criado com sucesso!", Toast.LENGTH_SHORT).show()
             }
@@ -221,10 +156,7 @@ class NpcFragment : Fragment() {
             .collection("npcs").document(npc.id)
             .set(npc)
             .addOnSuccessListener {
-                val position = npcs.indexOf(npcs.filter { it.id == npc.id }.first())
-                npcs.set(position, npc)
-
-                updateNpcList()
+                npcAdapter.edit(npc)
 
                 Toast.makeText(activity, "NPC ${npc.name} salvo com sucesso!", Toast.LENGTH_SHORT).show()
             }
@@ -239,22 +171,12 @@ class NpcFragment : Fragment() {
             .collection("npcs").document(npc.id)
             .delete()
             .addOnSuccessListener {
-                val position = npcs.indexOf(npcs.filter { it.id == npc.id }.first())
-                npcs.removeAt(position)
-
-                updateNpcList()
+                npcAdapter.remove(npc)
 
                 Toast.makeText(activity, "NPC ${npc.name} removido com sucesso!", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener { exception ->
                 Toast.makeText(activity, "Erro ao remover o NPC ${npc.name}.", Toast.LENGTH_SHORT).show()
             }
-    }
-
-    private fun updateNpcList() {
-        npcAdapter.clear()
-        npcAdapter.addAll(npcs)
-        npcAdapter.notifyDataSetChanged()
-        searchMenuItem.collapseActionView()
     }
 }
