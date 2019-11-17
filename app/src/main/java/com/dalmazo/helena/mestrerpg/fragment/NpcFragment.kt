@@ -16,9 +16,9 @@ import com.dalmazo.helena.mestrerpg.R
 import com.dalmazo.helena.mestrerpg.adapter.NpcAdapter
 import com.dalmazo.helena.mestrerpg.enum.Action
 import com.dalmazo.helena.mestrerpg.model.Npc
+import com.dalmazo.helena.mestrerpg.repository.NpcRepository
 import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import java.io.ByteArrayOutputStream
 
@@ -26,14 +26,13 @@ class NpcFragment : Fragment() {
 
     val REQUEST_CODE_NPC = 1111
 
-    lateinit var worldId: String
-
-    var npcs: MutableList<Npc> = mutableListOf()
+    private lateinit var npcRepository: NpcRepository
 
     lateinit var npcAdapter: NpcAdapter
 
-    override fun onCreateView( inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle? ): View? {
-        worldId = (activity as WorldActivity).world.id
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+        npcRepository = NpcRepository((activity as WorldActivity).world.id)
 
         setHasOptionsMenu(true)
 
@@ -49,21 +48,21 @@ class NpcFragment : Fragment() {
     }
 
     private fun setNpcList(view: View) {
-        FirebaseFirestore.getInstance()
-            .collection("worlds").document(worldId)
-            .collection("npcs").get().addOnCompleteListener { task ->
-                if (!task.isSuccessful) return@addOnCompleteListener
+        npcRepository.list().addOnCompleteListener { task ->
+            if (!task.isSuccessful) return@addOnCompleteListener
 
-                for (npcDoc in task.result!!) {
-                    val npc: Npc = npcDoc.toObject(Npc::class.java).apply { this.id = npcDoc.id }
-                    npcs.add(npc)
-                }
+            val npcs: MutableList<Npc> = mutableListOf()
 
-                npcAdapter = NpcAdapter(this, npcs)
-                val recyclerView = view.findViewById(R.id.npc_list) as RecyclerView
-                recyclerView.adapter = npcAdapter
-                recyclerView.layoutManager = LinearLayoutManager(activity)
+            for (npcDoc in task.result!!) {
+                val npc: Npc = npcDoc.toObject(Npc::class.java).apply { this.id = npcDoc.id }
+                npcs.add(npc)
             }
+
+            npcAdapter = NpcAdapter(this, npcs)
+            val recyclerView = view.findViewById(R.id.npc_list) as RecyclerView
+            recyclerView.adapter = npcAdapter
+            recyclerView.layoutManager = LinearLayoutManager(activity)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -133,49 +132,37 @@ class NpcFragment : Fragment() {
     }
 
     private fun addNpcFirestore(npc: Npc) {
-        FirebaseFirestore.getInstance()
-            .collection("worlds").document(worldId)
-            .collection("npcs")
-            .add(npc)
-            .addOnSuccessListener { documentReference ->
-                npc.id = documentReference.id
-
-                npcAdapter.add(npc)
-
-                Toast.makeText(activity, "NPC ${npc.name} criado com sucesso!", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(activity, "Erro ao criar o NPC ${npc.name}.", Toast.LENGTH_SHORT).show()
-            }
+        npcRepository.add(npc).addOnSuccessListener { documentReference ->
+            npc.id = documentReference.id
+            npcAdapter.add(npc)
+            showToast("NPC ${npc.name} criado com sucesso!")
+        }
+        .addOnFailureListener { exception ->
+            showToast("Ops, ocorreu um erro ao criar o NPC ${npc.name}.")
+        }
     }
 
     private fun editNpcFirestore(npc: Npc) {
-        FirebaseFirestore.getInstance()
-            .collection("worlds").document(worldId)
-            .collection("npcs").document(npc.id)
-            .set(npc)
-            .addOnSuccessListener {
-                npcAdapter.edit(npc)
-
-                Toast.makeText(activity, "NPC ${npc.name} salvo com sucesso!", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(activity, "Erro ao salvar o NPC ${npc.name}.", Toast.LENGTH_SHORT).show()
-            }
+        npcRepository.update(npc).addOnSuccessListener {
+            npcAdapter.edit(npc)
+            showToast("NPC ${npc.name} salvo com sucesso!")
+        }
+        .addOnFailureListener { exception ->
+            showToast("Ops, ocorreu um erro ao salvar o NPC ${npc.name}.")
+        }
     }
 
     private fun deleteNpcFirestore(npc: Npc) {
-        FirebaseFirestore.getInstance()
-            .collection("worlds").document(worldId)
-            .collection("npcs").document(npc.id)
-            .delete()
-            .addOnSuccessListener {
-                npcAdapter.remove(npc)
+        npcRepository.delete(npc).addOnSuccessListener {
+            npcAdapter.remove(npc)
+            showToast("NPC ${npc.name} removido com sucesso!")
+        }
+        .addOnFailureListener { exception ->
+            showToast("Ops, ocorreu um  erro ao remover o NPC ${npc.name}.")
+        }
+    }
 
-                Toast.makeText(activity, "NPC ${npc.name} removido com sucesso!", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener { exception ->
-                Toast.makeText(activity, "Erro ao remover o NPC ${npc.name}.", Toast.LENGTH_SHORT).show()
-            }
+    private fun showToast(message: String) {
+        Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
     }
 }
