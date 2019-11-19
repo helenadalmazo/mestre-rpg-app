@@ -18,26 +18,24 @@ import com.dalmazo.helena.mestrerpg.util.Extra
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import com.dalmazo.helena.mestrerpg.enum.RequestCode
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
 
 class NpcActivity : AppCompatActivity() {
 
-    val REQUEST_GALLERY_IMAGE = 1111
-    val REQUEST_CAMERA_IMAGE = 2222
+    private var npcObject = Npc()
+    private var npcImage: Bitmap? = null
+    private var editMode = true
 
-    var npcObject = Npc()
-    var npcImage: Bitmap? = null
-    var editMode = true
+    private var imageChanged = false
 
-    var imageChanged = false
-
-    lateinit var imageViewNpc: ImageView
-    lateinit var editTextName: EditText
-    lateinit var editTextCharacteristics : EditText
-    lateinit var editTextHistory: EditText
-    lateinit var spinnerSex: Spinner
-    lateinit var spinnerRace: Spinner
+    private lateinit var imageViewNpc: ImageView
+    private lateinit var editTextName: EditText
+    private lateinit var editTextCharacteristics : EditText
+    private lateinit var editTextHistory: EditText
+    private lateinit var spinnerSex: Spinner
+    private lateinit var spinnerRace: Spinner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -214,13 +212,13 @@ class NpcActivity : AppCompatActivity() {
     }
 
     private fun chooseImageFromGallery() {
-        startActivityForResult(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), REQUEST_GALLERY_IMAGE)
+        startActivityForResult(Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI), RequestCode.GALLERY_IMAGE.value)
     }
 
     private fun takeImageFromCamera() {
         Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takeCameraImageIntent ->
             takeCameraImageIntent.resolveActivity(packageManager)?.also {
-                startActivityForResult(takeCameraImageIntent, REQUEST_CAMERA_IMAGE)
+                startActivityForResult(takeCameraImageIntent, RequestCode.CAMERA_IMAGE.value)
             }
         }
     }
@@ -234,9 +232,10 @@ class NpcActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
 
-            if (requestCode == REQUEST_GALLERY_IMAGE) {
+            if (requestCode == RequestCode.GALLERY_IMAGE.value) {
                 imageViewNpc.setImageURI(data?.data)
-            } else if (requestCode == REQUEST_CAMERA_IMAGE) {
+            }
+            else if (requestCode == RequestCode.CAMERA_IMAGE.value) {
                 val image = data?.extras?.get("data") as Bitmap
                 imageViewNpc.setImageBitmap(image)
             }
