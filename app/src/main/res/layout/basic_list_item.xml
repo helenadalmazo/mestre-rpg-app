@@ -2,20 +2,28 @@
 <RelativeLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="64dp">
+        android:layout_height="64dp"
+        android:paddingHorizontal="@dimen/list_two_line_horizontal_padding"
+        android:paddingVertical="@dimen/list_two_line_vertical_padding">
 
-    <ImageView
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:id="@+id/item_image"
-            android:padding="4dp"/>
+<!--    <ImageView-->
+<!--        android:layout_width="64dp"-->
+<!--        android:layout_height="64dp"-->
+<!--        android:id="@+id/item_image"-->
+<!--        android:padding="4dp"/>-->
+
+    <TextView
+        android:id="@+id/item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textSize="@dimen/font_size"
+        android:textStyle="bold" />
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:id="@+id/item_name"
-            android:layout_toEndOf="@+id/item_image"
-            android:layout_toRightOf="@+id/item_image"
+            android:id="@+id/item_characteristics"
             android:textSize="@dimen/font_size"
-            android:layout_centerInParent="true"/>
+            android:layout_below="@+id/item_name"
+            android:layout_centerVertical="true"/>
 </RelativeLayout>
