@@ -35,6 +35,9 @@ class NpcAdapter(private val fragment: NpcFragment, private val npcList: Mutable
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                     image.setImageBitmap(bitmap)
                 }
+                .addOnFailureListener { exception ->
+                    image.setImageResource(R.drawable.no_image_available)
+                }
         }
     }
 
