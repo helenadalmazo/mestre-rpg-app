@@ -88,19 +88,20 @@ class NpcFragment : Fragment() {
                         uploadTask.addOnProgressListener { taskSnapshot ->
                             val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
                             println("### Upload is $progress% done")
-                            npcAdapter.notifyDataSetChanged()
                         }.addOnPausedListener {
                             println("### Upload is paused")
                         }.addOnFailureListener {
                             println("### Upload failure")
                         }.addOnSuccessListener {
                             println("### Upload success")
+                            npcAdapter.notifyDataSetChanged()
                         }
                     }
                     Action.DELETE -> {
                         val deleteTask = FirebaseStorage.getInstance().reference.child("npcs/${npc.id}.jpg").delete()
                         deleteTask.addOnSuccessListener {
                             println("### Imagem removida com sucesso")
+                            npcAdapter.notifyDataSetChanged()
                         }.addOnFailureListener {
                             println("### Imagem não removida")
                         }
