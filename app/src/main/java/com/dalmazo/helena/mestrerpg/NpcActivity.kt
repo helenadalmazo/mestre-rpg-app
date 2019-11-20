@@ -26,8 +26,8 @@ class NpcActivity : AppCompatActivity() {
 
     private var npcObject = Npc()
     private var npcImage: Bitmap? = null
-    private var editMode = true
 
+    private var editMode = true
     private var imageChanged = false
 
     private lateinit var imageViewNpc: ImageView
