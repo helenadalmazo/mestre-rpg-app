@@ -18,6 +18,7 @@ import com.dalmazo.helena.mestrerpg.enum.Action
 import com.dalmazo.helena.mestrerpg.enum.RequestCode
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.repository.NpcRepository
+import com.dalmazo.helena.mestrerpg.repository.image.NpcImageRepository
 import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.storage.FirebaseStorage
@@ -78,13 +79,14 @@ class NpcFragment : Fragment() {
             if (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) != null) {
                 val image = data.getParcelableExtra<Bitmap>(Extra.NPC_IMAGE)
 
+                val npcImageRepository = NpcImageRepository()
+
                 when (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION)) {
                     Action.EDIT -> {
                         val baos = ByteArrayOutputStream()
                         image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
 
-                        val uploadTask = FirebaseStorage.getInstance().reference.child("npcs/${npc.id}.jpg")
-                            .putBytes(baos.toByteArray())
+                        val uploadTask = npcImageRepository.save(npc, baos.toByteArray())
                         uploadTask.addOnProgressListener { taskSnapshot ->
                             val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
                             println("### Upload is $progress% done")
@@ -98,11 +100,10 @@ class NpcFragment : Fragment() {
                         }
                     }
                     Action.DELETE -> {
-                        val deleteTask = FirebaseStorage.getInstance().reference.child("npcs/${npc.id}.jpg").delete()
-                        deleteTask.addOnSuccessListener {
+                        npcImageRepository.delete(npc)?.addOnSuccessListener {
                             println("### Imagem removida com sucesso")
                             npcAdapter.notifyDataSetChanged()
-                        }.addOnFailureListener {
+                        }?.addOnFailureListener {
                             println("### Imagem não removida")
                         }
                     }

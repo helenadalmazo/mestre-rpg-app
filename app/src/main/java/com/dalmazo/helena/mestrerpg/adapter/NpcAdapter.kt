@@ -15,6 +15,7 @@ import com.dalmazo.helena.mestrerpg.R
 import com.dalmazo.helena.mestrerpg.enum.RequestCode
 import com.dalmazo.helena.mestrerpg.fragment.NpcFragment
 import com.dalmazo.helena.mestrerpg.model.Npc
+import com.dalmazo.helena.mestrerpg.repository.image.NpcImageRepository
 import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.firebase.storage.FirebaseStorage
 
@@ -28,16 +29,13 @@ class NpcAdapter(private val fragment: NpcFragment, private val npcList: Mutable
 
         fun bind(npc: Npc) {
             name.text = npc.name
-            FirebaseStorage.getInstance().reference
-                .child("npcs/${npc.id}.jpg")
-                .getBytes(1024 * 1024)
-                .addOnSuccessListener { bytes ->
-                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    image.setImageBitmap(bitmap)
-                }
-                .addOnFailureListener { exception ->
-                    image.setImageResource(R.drawable.no_image_available)
-                }
+            NpcImageRepository().get(npc).addOnSuccessListener { bytes ->
+                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                image.setImageBitmap(bitmap)
+            }
+            .addOnFailureListener { exception ->
+                image.setImageResource(R.drawable.no_image_available)
+            }
         }
     }
 
