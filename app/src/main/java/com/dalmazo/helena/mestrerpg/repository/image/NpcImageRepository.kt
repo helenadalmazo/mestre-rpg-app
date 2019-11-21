@@ -12,8 +12,6 @@ class NpcImageRepository {
 
     public fun get(npc: Npc): Task<ByteArray> {
         return storageReference.child("${npc.id}.jpg").getBytes(1024 * 1024)
-//        return FirebaseStorage.getInstance().reference.child("npcs").child("${npc.id}.jpg").getBytes(1024 * 1024)
-//        return FirebaseStorage.getInstance().reference.child("npcs/${npc.id}.jpg").getBytes(1024 * 1024)
     }
 
     public fun save(npc: Npc, image: ByteArray): UploadTask {
