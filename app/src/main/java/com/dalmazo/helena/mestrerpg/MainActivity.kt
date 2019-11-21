@@ -50,12 +50,13 @@ class MainActivity : AppCompatActivity() {
     inner class WorldAdapter(context: Context, worlds: List<World>) : ArrayAdapter<World>(context, R.layout.basic_list_item, worlds) {
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val rowView: View = layoutInflater.inflate(R.layout.basic_list_item, null, false);
+            val rowView: View = layoutInflater.inflate(R.layout.basic_list_item, null, false)
 
             val world = getItem(position) as World
 
-            rowView.findViewById<ImageView>(R.id.item_image).setImageResource(R.mipmap.ic_launcher) // TODO implementar imageResource
+//            rowView.findViewById<ImageView>(R.id.item_image).setImageResource(R.mipmap.ic_launcher) // TODO implementar imageResource
             rowView.findViewById<TextView>(R.id.item_name).text = world.name
+            rowView.findViewById<TextView>(R.id.item_characteristics).text = world.characteristics
 
             return rowView
         }

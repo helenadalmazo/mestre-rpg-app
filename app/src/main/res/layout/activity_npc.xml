@@ -33,7 +33,7 @@
 
         <TextView
                 android:text="Imagem"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:gravity="center_vertical"
                 android:textSize="@dimen/font_size"
@@ -45,7 +45,8 @@
                 android:focusable="true"
                 android:background="?android:attr/selectableItemBackground"
                 android:id="@+id/add_image"
-                android:onClick="showBottomSheetDialogEditImage"/>
+                android:onClick="showBottomSheetDialogEditImage"
+                android:padding="8dp"/>
         <TextView
                 android:text="@string/attr_name"
                 android:layout_width="match_parent"
@@ -65,9 +66,10 @@
         <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textMultiLine"
                 android:ems="10"
-                android:id="@+id/characteristics"/>
+                android:id="@+id/characteristics"
+                android:lines="3"/>
         <TextView
                 android:text="@string/attr_history"
                 android:layout_width="match_parent"
@@ -76,9 +78,10 @@
         <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textMultiLine"
                 android:ems="10"
-                android:id="@+id/history"/>
+                android:id="@+id/history"
+                android:lines="3"/>
         <TextView
                 android:text="@string/attr_sex"
                 android:layout_width="match_parent"

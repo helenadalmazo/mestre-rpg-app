@@ -1,6 +1,5 @@
 package com.dalmazo.helena.mestrerpg.repository
 
-import android.widget.Toast
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.CollectionReference
