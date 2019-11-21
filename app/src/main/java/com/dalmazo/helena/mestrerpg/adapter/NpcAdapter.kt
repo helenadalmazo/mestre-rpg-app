@@ -12,12 +12,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.dalmazo.helena.mestrerpg.NpcActivity
 import com.dalmazo.helena.mestrerpg.R
+import com.dalmazo.helena.mestrerpg.enum.RequestCode
 import com.dalmazo.helena.mestrerpg.fragment.NpcFragment
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.firebase.storage.FirebaseStorage
 
 class NpcAdapter(private val fragment: NpcFragment, private val npcList: MutableList<Npc>) : RecyclerView.Adapter<NpcAdapter.NpcViewHolder>(), Filterable {
+
     private val originalNpcList: MutableList<Npc> = npcList.toMutableList()
 
     class NpcViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -49,7 +51,7 @@ class NpcAdapter(private val fragment: NpcFragment, private val npcList: Mutable
         holder.itemView.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
                 val intent = Intent(fragment.activity, NpcActivity::class.java).apply { putExtra(Extra.NPC_OBJECT, npc) }
-                fragment.startActivityForResult(intent, 1111)
+                fragment.startActivityForResult(intent, RequestCode.NPC.value)
             }}
         )
     }

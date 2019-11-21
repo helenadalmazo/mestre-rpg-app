@@ -15,6 +15,7 @@ import com.dalmazo.helena.mestrerpg.NpcActivity
 import com.dalmazo.helena.mestrerpg.R
 import com.dalmazo.helena.mestrerpg.adapter.NpcAdapter
 import com.dalmazo.helena.mestrerpg.enum.Action
+import com.dalmazo.helena.mestrerpg.enum.RequestCode
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.repository.NpcRepository
 import com.dalmazo.helena.mestrerpg.util.Extra
@@ -24,11 +25,9 @@ import java.io.ByteArrayOutputStream
 
 class NpcFragment : Fragment() {
 
-    val REQUEST_CODE_NPC = 1111
-
     private lateinit var npcRepository: NpcRepository
 
-    lateinit var npcAdapter: NpcAdapter
+    private lateinit var npcAdapter: NpcAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
@@ -39,7 +38,7 @@ class NpcFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_npc, container, false)
 
         view.findViewById<FloatingActionButton>(R.id.npc_add).setOnClickListener {
-            startActivityForResult(Intent(activity, NpcActivity::class.java), REQUEST_CODE_NPC)
+            startActivityForResult(Intent(activity, NpcActivity::class.java), RequestCode.NPC.value)
         }
 
         setNpcList(view)
@@ -66,7 +65,7 @@ class NpcFragment : Fragment() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_NPC) {
+        if (resultCode == Activity.RESULT_OK && requestCode == RequestCode.NPC.value) {
 
             val npc = data?.getSerializableExtra(Extra.NPC_OBJECT) as Npc
 
