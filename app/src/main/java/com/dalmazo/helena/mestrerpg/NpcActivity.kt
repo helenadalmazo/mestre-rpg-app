@@ -50,11 +50,11 @@ class NpcActivity : AppCompatActivity() {
         spinnerSex = findViewById<Spinner>(R.id.sex)
         spinnerRace = findViewById<Spinner>(R.id.race)
 
-        val spinnerSexArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Sex.values().map { sex -> sex.toString() })
+        val spinnerSexArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Sex.values().map { sex -> sex.value })
         spinnerSexArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerSex.adapter = spinnerSexArrayAdapter
 
-        val spinnerRaceArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Race.values().map { race -> race.toString() })
+        val spinnerRaceArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Race.values().map { race -> race.value })
         spinnerRaceArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerRace.adapter = spinnerRaceArrayAdapter
 
@@ -78,8 +78,8 @@ class NpcActivity : AppCompatActivity() {
         editTextName.setText(npcObject.name, TextView.BufferType.EDITABLE)
         editTextCharacteristics.setText(npcObject.characteristics, TextView.BufferType.EDITABLE)
         editTextHistory.setText(npcObject.history, TextView.BufferType.EDITABLE)
-        spinnerSex.setSelection((spinnerSex.adapter as ArrayAdapter<String>).getPosition(npcObject.sex.toString()))
-        spinnerRace.setSelection((spinnerRace.adapter as ArrayAdapter<String>).getPosition(npcObject.race.toString()))
+        spinnerSex.setSelection((spinnerSex.adapter as ArrayAdapter<String>).getPosition(npcObject.sex?.value))
+        spinnerRace.setSelection((spinnerRace.adapter as ArrayAdapter<String>).getPosition(npcObject.race?.value))
     }
 
     private fun saveNpc() {
@@ -109,9 +109,9 @@ class NpcActivity : AppCompatActivity() {
         val name = editTextName.text.toString()
         val characteristics = editTextCharacteristics.text.toString()
         val history = editTextHistory.text.toString()
-        val sex = spinnerSex.selectedItem.toString()
-        val race = spinnerRace.selectedItem.toString()
-        return Npc(npcObject.id, name, characteristics, history, Sex.valueOf(sex), Race.valueOf(race))
+        val sex = Sex.get(spinnerSex.selectedItem.toString())
+        val race = Race.get(spinnerRace.selectedItem.toString())
+        return Npc(npcObject.id, name, characteristics, history, sex, race)
     }
 
     private fun validateEditTextsMandatory(editTexts: List<EditText>): Boolean {
