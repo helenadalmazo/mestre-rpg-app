@@ -17,7 +17,6 @@ import com.dalmazo.helena.mestrerpg.fragment.NpcFragment
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.repository.image.NpcImageRepository
 import com.dalmazo.helena.mestrerpg.util.Extra
-import com.google.firebase.storage.FirebaseStorage
 
 class NpcAdapter(private val fragment: NpcFragment, private val npcList: MutableList<Npc>) : RecyclerView.Adapter<NpcAdapter.NpcViewHolder>(), Filterable {
 

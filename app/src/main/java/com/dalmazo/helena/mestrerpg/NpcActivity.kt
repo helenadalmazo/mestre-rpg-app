@@ -21,6 +21,7 @@ import android.graphics.drawable.BitmapDrawable
 import com.dalmazo.helena.mestrerpg.enum.RequestCode
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.storage.FirebaseStorage
+import java.io.ByteArrayOutputStream
 
 class NpcActivity : AppCompatActivity() {
 
@@ -90,15 +91,17 @@ class NpcActivity : AppCompatActivity() {
             putExtra(Extra.NPC_OBJECT, buildNpcObject())
             putExtra(Extra.NPC_ACTION, action)
             if (imageChanged) {
-                val npcImageBitmap: Bitmap?
                 if (imageViewNpc.drawable != null) {
-                    npcImageBitmap = (imageViewNpc.drawable as BitmapDrawable).bitmap
+                    val npcImageBitmap = (imageViewNpc.drawable as BitmapDrawable).bitmap
+
+                    val byteArrayOutputStream = ByteArrayOutputStream()
+                    npcImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+
                     putExtra(Extra.NPC_IMAGE_ACTION, Action.EDIT)
+                    putExtra(Extra.NPC_IMAGE, byteArrayOutputStream.toByteArray())
                 } else {
-                    npcImageBitmap = null
                     putExtra(Extra.NPC_IMAGE_ACTION, Action.DELETE)
                 }
-                putExtra(Extra.NPC_IMAGE, npcImageBitmap)
             }
         }
         setResult(Activity.RESULT_OK, intentToReturn);
