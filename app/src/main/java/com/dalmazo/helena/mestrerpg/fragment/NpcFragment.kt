@@ -67,45 +67,26 @@ class NpcFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK && requestCode == RequestCode.NPC.value) {
-
             val npc = data?.getSerializableExtra(Extra.NPC_OBJECT) as Npc
 
-            when (data.getSerializableExtra(Extra.NPC_ACTION)) {
-                Action.ADD -> addNpcFirestore(npc)
-                Action.EDIT -> editNpcFirestore(npc)
-                Action.DELETE -> deleteNpcFirestore(npc)
-            }
-
-            if (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) != null) {
+            if (data.getSerializableExtra(Extra.NPC_ACTION) == Action.ADD
+                && data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) == Action.EDIT) {
                 val image = data.getParcelableExtra<Bitmap>(Extra.NPC_IMAGE)
+                addNpcAndImage(npc, image)
 
-                val npcImageRepository = NpcImageRepository()
+            } else {
+                when (data.getSerializableExtra(Extra.NPC_ACTION)) {
+                    Action.ADD -> add(npc)
+                    Action.EDIT -> edit(npc)
+                    Action.DELETE -> delete(npc)
+                }
 
-                when (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION)) {
-                    Action.EDIT -> {
-                        val baos = ByteArrayOutputStream()
-                        image.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                if (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) != null) {
+                    val image = data.getParcelableExtra<Bitmap>(Extra.NPC_IMAGE)
 
-                        val uploadTask = npcImageRepository.save(npc, baos.toByteArray())
-                        uploadTask.addOnProgressListener { taskSnapshot ->
-                            val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
-                            println("### Upload is $progress% done")
-                        }.addOnPausedListener {
-                            println("### Upload is paused")
-                        }.addOnFailureListener {
-                            println("### Upload failure")
-                        }.addOnSuccessListener {
-                            println("### Upload success")
-                            npcAdapter.notifyDataSetChanged()
-                        }
-                    }
-                    Action.DELETE -> {
-                        npcImageRepository.delete(npc)?.addOnSuccessListener {
-                            println("### Imagem removida com sucesso")
-                            npcAdapter.notifyDataSetChanged()
-                        }?.addOnFailureListener {
-                            println("### Imagem não removida")
-                        }
+                    when (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION)) {
+                        Action.EDIT -> editImage(npc, image)
+                        Action.DELETE -> deleteImage(npc)
                     }
                 }
             }
@@ -132,7 +113,25 @@ class NpcFragment : Fragment() {
         })
     }
 
-    private fun addNpcFirestore(npc: Npc) {
+    private fun addNpcAndImage(npc: Npc, image: Bitmap) {
+        npcRepository.add(npc).addOnSuccessListener { documentReference ->
+            npc.id = documentReference.id
+            npcAdapter.add(npc)
+            showToast("NPC ${npc.name} criado com sucesso!")
+
+            val byteArrayOutputStream = ByteArrayOutputStream()
+            image.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+
+            NpcImageRepository().save(npc, byteArrayOutputStream.toByteArray()).addOnSuccessListener {
+                npcAdapter.update(npc)
+            }
+        }
+        .addOnFailureListener { exception ->
+            showToast("Ops, ocorreu um erro ao criar o NPC ${npc.name}.")
+        }
+    }
+
+    private fun add(npc: Npc) {
         npcRepository.add(npc).addOnSuccessListener { documentReference ->
             npc.id = documentReference.id
             npcAdapter.add(npc)
@@ -143,9 +142,9 @@ class NpcFragment : Fragment() {
         }
     }
 
-    private fun editNpcFirestore(npc: Npc) {
+    private fun edit(npc: Npc) {
         npcRepository.update(npc).addOnSuccessListener {
-            npcAdapter.edit(npc)
+            npcAdapter.update(npc)
             showToast("NPC ${npc.name} salvo com sucesso!")
         }
         .addOnFailureListener { exception ->
@@ -153,13 +152,40 @@ class NpcFragment : Fragment() {
         }
     }
 
-    private fun deleteNpcFirestore(npc: Npc) {
+    private fun delete(npc: Npc) {
         npcRepository.delete(npc).addOnSuccessListener {
             npcAdapter.remove(npc)
             showToast("NPC ${npc.name} removido com sucesso!")
         }
         .addOnFailureListener { exception ->
             showToast("Ops, ocorreu um  erro ao remover o NPC ${npc.name}.")
+        }
+    }
+
+    private fun editImage(npc: Npc, image: Bitmap) {
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        image.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+
+        val uploadTask = NpcImageRepository().save(npc, byteArrayOutputStream.toByteArray())
+        uploadTask.addOnProgressListener { taskSnapshot ->
+            val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
+            println("### Upload is $progress% done")
+        }.addOnPausedListener {
+            println("### Upload is paused")
+        }.addOnFailureListener {
+            println("### Upload failure")
+        }.addOnSuccessListener {
+            println("### Upload success")
+            npcAdapter.update(npc)
+        }
+    }
+
+    private fun deleteImage(npc: Npc) {
+        NpcImageRepository().delete(npc)?.addOnSuccessListener {
+            println("### Imagem removida com sucesso")
+            npcAdapter.update(npc)
+        }?.addOnFailureListener {
+            println("### Imagem não removida")
         }
     }
 
