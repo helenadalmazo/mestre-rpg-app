@@ -85,7 +85,7 @@ class NpcFragment : Fragment() {
                     val image = data.getParcelableExtra<Bitmap>(Extra.NPC_IMAGE)
 
                     when (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION)) {
-                        Action.EDIT -> addImage(npc, image)
+                        Action.EDIT -> editImage(npc, image)
                         Action.DELETE -> deleteImage(npc)
                     }
                 }
@@ -162,7 +162,7 @@ class NpcFragment : Fragment() {
         }
     }
 
-    private fun addImage(npc: Npc, image: Bitmap) {
+    private fun editImage(npc: Npc, image: Bitmap) {
         val byteArrayOutputStream = ByteArrayOutputStream()
         image.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
 
