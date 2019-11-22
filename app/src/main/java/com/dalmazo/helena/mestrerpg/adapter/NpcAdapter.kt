@@ -26,17 +26,6 @@ class NpcAdapter(private val fragment: NpcFragment, private val npcList: Mutable
     class NpcViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val image = itemView.findViewById(R.id.npc_item_image) as ImageView
         val name = itemView.findViewById(R.id.npc_item_name) as TextView
-
-        fun bind(npc: Npc) {
-            name.text = npc.name
-            NpcImageRepository().get(npc).addOnSuccessListener { bytes ->
-                val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                image.setImageBitmap(bitmap)
-            }
-            .addOnFailureListener { exception ->
-                image.setImageResource(R.drawable.no_image_available)
-            }
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NpcViewHolder {
@@ -47,7 +36,13 @@ class NpcAdapter(private val fragment: NpcFragment, private val npcList: Mutable
     override fun onBindViewHolder(holder: NpcViewHolder, position: Int) {
         val npc = npcList[position]
 
-        holder.bind(npc)
+        holder.name.text = npc.name
+
+        holder.image.setImageResource(R.drawable.no_image_available)
+        NpcImageRepository().get(npc).addOnSuccessListener { bytes ->
+            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+            holder.image.setImageBitmap(bitmap)
+        }
 
         holder.itemView.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
@@ -90,19 +85,25 @@ class NpcAdapter(private val fragment: NpcFragment, private val npcList: Mutable
     fun add(npc: Npc) {
         originalNpcList.add(npc)
         npcList.add(npc)
-        notifyDataSetChanged()
+        val position = getPositiion(npc) // get position after add npc
+        notifyItemInserted(position)
     }
 
-    fun edit(npc: Npc) {
-        val position = originalNpcList.indexOf(originalNpcList.filter { it.id == npc.id }.first())
+    fun update(npc: Npc) {
+        val position = getPositiion(npc)
         originalNpcList.set(position, npc)
         npcList.set(position, npc)
-        notifyDataSetChanged()
+        notifyItemChanged(position)
     }
 
     fun remove(npc: Npc) {
+        val position = getPositiion(npc)
         originalNpcList.remove(npc)
         npcList.remove(npc)
-        notifyDataSetChanged()
+        notifyItemRemoved(position)
+    }
+
+    private fun getPositiion(npc: Npc): Int {
+        return originalNpcList.indexOf(originalNpcList.filter { it.id == npc.id }.first())
     }
 }
