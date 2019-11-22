@@ -2,7 +2,6 @@ package com.dalmazo.helena.mestrerpg.fragment
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.*
 import android.widget.*
@@ -21,8 +20,6 @@ import com.dalmazo.helena.mestrerpg.repository.NpcRepository
 import com.dalmazo.helena.mestrerpg.repository.image.NpcImageRepository
 import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.firebase.storage.FirebaseStorage
-import java.io.ByteArrayOutputStream
 
 class NpcFragment : Fragment() {
 
@@ -71,7 +68,7 @@ class NpcFragment : Fragment() {
 
             if (data.getSerializableExtra(Extra.NPC_ACTION) == Action.ADD
                 && data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) == Action.EDIT) {
-                val image = data.getParcelableExtra<Bitmap>(Extra.NPC_IMAGE)
+                val image = data.getByteArrayExtra(Extra.NPC_IMAGE)
                 addNpcAndImage(npc, image)
 
             } else {
@@ -82,7 +79,7 @@ class NpcFragment : Fragment() {
                 }
 
                 if (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) != null) {
-                    val image = data.getParcelableExtra<Bitmap>(Extra.NPC_IMAGE)
+                    val image = data.getByteArrayExtra(Extra.NPC_IMAGE)
 
                     when (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION)) {
                         Action.EDIT -> editImage(npc, image)
@@ -113,16 +110,13 @@ class NpcFragment : Fragment() {
         })
     }
 
-    private fun addNpcAndImage(npc: Npc, image: Bitmap) {
+    private fun addNpcAndImage(npc: Npc, image: ByteArray) {
         npcRepository.add(npc).addOnSuccessListener { documentReference ->
             npc.id = documentReference.id
             npcAdapter.add(npc)
             showToast("NPC ${npc.name} criado com sucesso!")
 
-            val byteArrayOutputStream = ByteArrayOutputStream()
-            image.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-
-            NpcImageRepository().save(npc, byteArrayOutputStream.toByteArray()).addOnSuccessListener {
+            NpcImageRepository().save(npc, image).addOnSuccessListener {
                 npcAdapter.update(npc)
             }
         }
@@ -162,11 +156,8 @@ class NpcFragment : Fragment() {
         }
     }
 
-    private fun editImage(npc: Npc, image: Bitmap) {
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        image.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-
-        val uploadTask = NpcImageRepository().save(npc, byteArrayOutputStream.toByteArray())
+    private fun editImage(npc: Npc, image: ByteArray) {
+        val uploadTask = NpcImageRepository().save(npc, image)
         uploadTask.addOnProgressListener { taskSnapshot ->
             val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
             println("### Upload is $progress% done")
