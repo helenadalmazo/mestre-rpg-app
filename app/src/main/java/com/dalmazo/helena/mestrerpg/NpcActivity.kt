@@ -10,26 +10,23 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.dalmazo.helena.mestrerpg.enum.Action
-import com.dalmazo.helena.mestrerpg.enum.Race
-import com.dalmazo.helena.mestrerpg.enum.Sex
 import com.dalmazo.helena.mestrerpg.model.Npc
 import com.dalmazo.helena.mestrerpg.util.Extra
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
+import com.dalmazo.helena.mestrerpg.enum.Action
+import com.dalmazo.helena.mestrerpg.enum.DisplayMode
+import com.dalmazo.helena.mestrerpg.enum.Race
 import com.dalmazo.helena.mestrerpg.enum.RequestCode
+import com.dalmazo.helena.mestrerpg.enum.Sex
+import com.dalmazo.helena.mestrerpg.util.Utils
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.firebase.storage.FirebaseStorage
-import java.io.ByteArrayOutputStream
 
 class NpcActivity : AppCompatActivity() {
 
     private var npcObject = Npc()
-    private var npcImage: Bitmap? = null
 
-    private var editMode = true
-    private var imageChanged = false
+    private var displayMode = DisplayMode.EDIT
 
     private lateinit var imageViewNpc: ImageView
     private lateinit var editTextName: EditText
@@ -38,18 +35,36 @@ class NpcActivity : AppCompatActivity() {
     private lateinit var spinnerSex: Spinner
     private lateinit var spinnerRace: Spinner
 
+    private lateinit var addImageButton: TextView
+    private lateinit var editImageButton: ImageButton
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_npc)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        imageViewNpc = findViewById<ImageView>(R.id.image)
-        editTextName = findViewById<EditText>(R.id.name)
-        editTextCharacteristics = findViewById<EditText>(R.id.characteristics)
-        editTextHistory = findViewById<EditText>(R.id.history)
-        spinnerSex = findViewById<Spinner>(R.id.sex)
-        spinnerRace = findViewById<Spinner>(R.id.race)
+        addImageButton = findViewById(R.id.add_image)
+        editImageButton = findViewById(R.id.edit_image)
+
+        setupFields()
+
+        if (intent.getSerializableExtra(Extra.NPC_OBJECT) != null) {
+            npcObject = intent.getSerializableExtra(Extra.NPC_OBJECT) as Npc
+            setFieldsValue()
+            changeToViewMode()
+        } else {
+            changeToEditMode()
+        }
+    }
+
+    private fun setupFields() {
+        imageViewNpc = findViewById(R.id.image)
+        editTextName = findViewById(R.id.name)
+        editTextCharacteristics = findViewById(R.id.characteristics)
+        editTextHistory = findViewById(R.id.history)
+        spinnerSex = findViewById(R.id.sex)
+        spinnerRace = findViewById(R.id.race)
 
         val spinnerSexArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Sex.values().map { sex -> sex.value })
         spinnerSexArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -58,24 +73,15 @@ class NpcActivity : AppCompatActivity() {
         val spinnerRaceArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Race.values().map { race -> race.value })
         spinnerRaceArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerRace.adapter = spinnerRaceArrayAdapter
-
-        if (intent.getSerializableExtra(Extra.NPC_OBJECT) != null) {
-            npcObject = intent.getSerializableExtra(Extra.NPC_OBJECT) as Npc
-
-            FirebaseStorage.getInstance().reference
-                .child("npcs/${npcObject.id}.jpg").getBytes(1024*1024)
-                .addOnSuccessListener { bytes ->
-                    npcImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    imageViewNpc.setImageBitmap(npcImage)
-                }
-
-            setFieldsValue()
-            changeToViewMode()
-        }
     }
 
     private fun setFieldsValue() {
-        imageViewNpc.setImageBitmap(npcImage)
+        if (npcObject.image.isEmpty()) {
+            imageViewNpc.setImageDrawable(null)
+        } else {
+            val bitmap = BitmapFactory.decodeByteArray(npcObject.image, 0, npcObject.image.size)
+            imageViewNpc.setImageBitmap(bitmap)
+        }
         editTextName.setText(npcObject.name, TextView.BufferType.EDITABLE)
         editTextCharacteristics.setText(npcObject.characteristics, TextView.BufferType.EDITABLE)
         editTextHistory.setText(npcObject.history, TextView.BufferType.EDITABLE)
@@ -86,35 +92,38 @@ class NpcActivity : AppCompatActivity() {
     private fun saveNpc() {
         if (!validateEditTextsMandatory(listOf(editTextName, editTextCharacteristics, editTextHistory))) return
 
-        val action: Action = if (existsNpcObject()) Action.EDIT else Action.ADD
-        val intentToReturn = Intent().apply {
-            putExtra(Extra.NPC_OBJECT, buildNpcObject())
-            putExtra(Extra.NPC_ACTION, action)
-            if (imageChanged) {
-                if (imageViewNpc.drawable != null) {
-                    val npcImageBitmap = (imageViewNpc.drawable as BitmapDrawable).bitmap
+        val npc = buildNpcObject()
 
-                    val byteArrayOutputStream = ByteArrayOutputStream()
-                    npcImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        val action: Action = if (existsNpcObject()) Action.UPDATE else Action.ADD
 
-                    putExtra(Extra.NPC_IMAGE_ACTION, Action.EDIT)
-                    putExtra(Extra.NPC_IMAGE, byteArrayOutputStream.toByteArray())
-                } else {
-                    putExtra(Extra.NPC_IMAGE_ACTION, Action.DELETE)
-                }
-            }
+        var imageAction: Action? = null
+        if (!npc.image.contentEquals(npcObject.image)) {
+            if (npc.image.isEmpty()) imageAction = Action.DELETE
+            else imageAction = Action.UPDATE
         }
-        setResult(Activity.RESULT_OK, intentToReturn);
+
+        val intentToReturn = Intent().apply {
+            putExtra(Extra.NPC_OBJECT, npc)
+            putExtra(Extra.NPC_ACTION, action)
+            putExtra(Extra.NPC_IMAGE_ACTION, imageAction)
+        }
+        setResult(Activity.RESULT_OK, intentToReturn)
         finish()
     }
 
     private fun buildNpcObject(): Npc {
+        var image = byteArrayOf()
+        if (imageViewNpc.drawable != null) {
+            image = Utils.getByteArrayFromImageView(imageViewNpc)
+        }
+
         val name = editTextName.text.toString()
         val characteristics = editTextCharacteristics.text.toString()
         val history = editTextHistory.text.toString()
         val sex = Sex.get(spinnerSex.selectedItem.toString())
         val race = Race.get(spinnerRace.selectedItem.toString())
-        return Npc(npcObject.id, name, characteristics, history, sex, race)
+
+        return Npc(npcObject.id, image, name, characteristics, history, sex, race)
     }
 
     private fun validateEditTextsMandatory(editTexts: List<EditText>): Boolean {
@@ -133,7 +142,7 @@ class NpcActivity : AppCompatActivity() {
             putExtra(Extra.NPC_OBJECT, npcObject)
             putExtra(Extra.NPC_ACTION, Action.DELETE)
         }
-        setResult(Activity.RESULT_OK, intentToReturn);
+        setResult(Activity.RESULT_OK, intentToReturn)
         finish()
     }
 
@@ -170,25 +179,32 @@ class NpcActivity : AppCompatActivity() {
     }
 
     private fun changeToEditMode() {
-        editMode = true
+        displayMode = DisplayMode.EDIT
+
         editTextName.isEnabled = true
         editTextCharacteristics.isEnabled = true
         editTextHistory.isEnabled = true
         spinnerSex.isEnabled = true
         spinnerRace.isEnabled = true
-        findViewById<ImageButton>(R.id.edit_image).visibility = View.VISIBLE
-        if (npcImage == null) findViewById<TextView>(R.id.add_image).visibility = View.VISIBLE
+
+        if (imageViewNpc.drawable == null) {
+            addImageButton.visibility = View.VISIBLE
+        } else {
+            editImageButton.visibility = View.VISIBLE
+        }
     }
 
     private fun changeToViewMode() {
-        editMode = false
+        displayMode = DisplayMode.VIEW
+
         editTextName.isEnabled = false
         editTextCharacteristics.isEnabled = false
         editTextHistory.isEnabled = false
         spinnerSex.isEnabled = false
         spinnerRace.isEnabled = false
-        findViewById<ImageButton>(R.id.edit_image).visibility = View.GONE
-        findViewById<TextView>(R.id.add_image).visibility = View.GONE
+
+        addImageButton.visibility = View.GONE
+        editImageButton.visibility = View.GONE
     }
 
     fun showBottomSheetDialogEditImage(view: View) {
@@ -209,7 +225,8 @@ class NpcActivity : AppCompatActivity() {
             bottomSheetDialog.dismiss()
             removeImage()
         }
-        if (npcImage == null) view.findViewById<TextView>(R.id.remove_image).visibility = View.GONE
+
+        if (imageViewNpc.drawable == null) view.findViewById<TextView>(R.id.remove_image).visibility = View.GONE
 
         bottomSheetDialog.show()
     }
@@ -226,10 +243,9 @@ class NpcActivity : AppCompatActivity() {
         }
     }
 
-    fun removeImage() {
-        imageChanged = true
+    private fun removeImage() {
         imageViewNpc.setImageDrawable(null)
-        findViewById<TextView>(R.id.add_image).visibility = View.VISIBLE
+        addImageButton.visibility = View.VISIBLE
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -243,8 +259,7 @@ class NpcActivity : AppCompatActivity() {
                 imageViewNpc.setImageBitmap(image)
             }
 
-            imageChanged = true
-            findViewById<TextView>(R.id.add_image).visibility = View.GONE
+            addImageButton.visibility = View.GONE
         }
 
         super.onActivityResult(requestCode, resultCode, data)
@@ -292,7 +307,7 @@ class NpcActivity : AppCompatActivity() {
         if (existsNpcObject()) {
             menu?.findItem(R.id.action_delete)?.isVisible = true
 
-            if (editMode) {
+            if (displayMode == DisplayMode.EDIT) {
                 menu?.findItem(R.id.action_undo)?.isVisible = true
                 menu?.findItem(R.id.action_edit)?.isVisible = false
                 menu?.findItem(R.id.action_save)?.isVisible = true

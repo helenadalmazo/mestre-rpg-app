@@ -28,10 +28,9 @@ class NpcFragment : Fragment() {
     private lateinit var npcAdapter: NpcAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
-        npcRepository = NpcRepository((activity as WorldActivity).world.id)
-
         setHasOptionsMenu(true)
+
+        npcRepository = NpcRepository(getWorldId())
 
         val view = inflater.inflate(R.layout.fragment_npc, container, false)
 
@@ -44,6 +43,10 @@ class NpcFragment : Fragment() {
         return view
     }
 
+    private fun getWorldId(): String {
+        return (activity as WorldActivity).world.id
+    }
+
     private fun setNpcList(view: View) {
         npcRepository.list().addOnCompleteListener { task ->
             if (!task.isSuccessful) return@addOnCompleteListener
@@ -51,7 +54,14 @@ class NpcFragment : Fragment() {
             val npcs: MutableList<Npc> = mutableListOf()
 
             for (npcDoc in task.result!!) {
-                val npc: Npc = npcDoc.toObject(Npc::class.java).apply { this.id = npcDoc.id }
+                var npc: Npc = npcDoc.toObject(Npc::class.java)
+                npc.id = npcDoc.id
+
+                NpcImageRepository().get(npc).addOnSuccessListener { bytes ->
+                    npc.image = bytes
+                    npcAdapter.update(npc)
+                }
+
                 npcs.add(npc)
             }
 
@@ -66,57 +76,30 @@ class NpcFragment : Fragment() {
         if (resultCode == Activity.RESULT_OK && requestCode == RequestCode.NPC.value) {
             val npc = data?.getSerializableExtra(Extra.NPC_OBJECT) as Npc
 
-            if (data.getSerializableExtra(Extra.NPC_ACTION) == Action.ADD
-                && data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) == Action.EDIT) {
-                val image = data.getByteArrayExtra(Extra.NPC_IMAGE)
-                addNpcAndImage(npc, image)
+            val action = data.getSerializableExtra(Extra.NPC_ACTION) as Action
 
-            } else {
-                when (data.getSerializableExtra(Extra.NPC_ACTION)) {
-                    Action.ADD -> add(npc)
-                    Action.EDIT -> edit(npc)
-                    Action.DELETE -> delete(npc)
-                }
+            val imageAction = data.getSerializableExtra(Extra.NPC_IMAGE_ACTION)
 
-                if (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION) != null) {
-                    val image = data.getByteArrayExtra(Extra.NPC_IMAGE)
+            if (action == Action.ADD && imageAction == Action.UPDATE) addNpcAndImage(npc)
 
-                    when (data.getSerializableExtra(Extra.NPC_IMAGE_ACTION)) {
-                        Action.EDIT -> editImage(npc, image)
-                        Action.DELETE -> deleteImage(npc)
-                    }
-                }
-            }
+            if (action == Action.ADD) add(npc)
+            if (action == Action.UPDATE) update(npc)
+            if (action == Action.DELETE) delete(npc)
+
+            if (imageAction == Action.UPDATE) saveImage(npc)
+            if (imageAction == Action.DELETE) deleteImage(npc)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.app_bar_actions_buttons_list, menu)
-
-        val searchMenuItem = menu.findItem(R.id.action_search) as MenuItem
-
-        (searchMenuItem.actionView as SearchView).setOnQueryTextListener( object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
-
-            override fun onQueryTextChange(typedText: String?): Boolean {
-                npcAdapter.filter.filter(typedText)
-                return true
-            }
-
-        })
-    }
-
-    private fun addNpcAndImage(npc: Npc, image: ByteArray) {
+    private fun addNpcAndImage(npc: Npc) {
         npcRepository.add(npc).addOnSuccessListener { documentReference ->
             npc.id = documentReference.id
             npcAdapter.add(npc)
             showToast("NPC ${npc.name} criado com sucesso!")
 
-            NpcImageRepository().save(npc, image).addOnSuccessListener {
+            NpcImageRepository().save(npc).addOnSuccessListener {
                 npcAdapter.update(npc)
             }
         }
@@ -136,7 +119,7 @@ class NpcFragment : Fragment() {
         }
     }
 
-    private fun edit(npc: Npc) {
+    private fun update(npc: Npc) {
         npcRepository.update(npc).addOnSuccessListener {
             npcAdapter.update(npc)
             showToast("NPC ${npc.name} salvo com sucesso!")
@@ -156,8 +139,8 @@ class NpcFragment : Fragment() {
         }
     }
 
-    private fun editImage(npc: Npc, image: ByteArray) {
-        val uploadTask = NpcImageRepository().save(npc, image)
+    private fun saveImage(npc: Npc) {
+        val uploadTask = NpcImageRepository().save(npc)
         uploadTask.addOnProgressListener { taskSnapshot ->
             val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
             println("### Upload is $progress% done")
@@ -182,5 +165,25 @@ class NpcFragment : Fragment() {
 
     private fun showToast(message: String) {
         Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.app_bar_actions_buttons_list, menu)
+
+        val searchMenuItem = menu.findItem(R.id.action_search) as MenuItem
+
+        (searchMenuItem.actionView as SearchView).setOnQueryTextListener( object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(typedText: String?): Boolean {
+                npcAdapter.filter.filter(typedText)
+                return true
+            }
+
+        })
+
+        super.onCreateOptionsMenu(menu, inflater)
     }
 }
