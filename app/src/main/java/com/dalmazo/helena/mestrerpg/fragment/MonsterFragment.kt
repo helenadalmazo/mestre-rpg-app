@@ -136,7 +136,7 @@ class MonsterFragment : Fragment() {
     }
 
     private fun saveImage(monster: Monster) {
-        val uploadTask = MonsterImageRepository().save(monster)
+        val uploadTask = MonsterImageRepository().save(monster, monster.image)
         uploadTask.addOnProgressListener { taskSnapshot ->
             val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
             println("### Upload is $progress% done")

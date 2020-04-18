@@ -99,7 +99,7 @@ class NpcFragment : Fragment() {
             npcAdapter.add(npc)
             showToast("NPC ${npc.name} criado com sucesso!")
 
-            NpcImageRepository().save(npc).addOnSuccessListener {
+            NpcImageRepository().save(npc, npc.image).addOnSuccessListener {
                 npcAdapter.update(npc)
             }
         }
@@ -140,7 +140,7 @@ class NpcFragment : Fragment() {
     }
 
     private fun saveImage(npc: Npc) {
-        val uploadTask = NpcImageRepository().save(npc)
+        val uploadTask = NpcImageRepository().save(npc, npc.image)
         uploadTask.addOnProgressListener { taskSnapshot ->
             val progress = (100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount
             println("### Upload is $progress% done")
