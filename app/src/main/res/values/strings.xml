@@ -24,5 +24,9 @@
     <string name="attr_sex">Sexo</string>
     <string name="attr_race">Espécie</string>
 
+    <!--Atributos Monster-->
+    <string name="attr_size">Tamanho</string>
+    <string name="attr_type">Tipo</string>
+    <string name="attr_displacement">Deslocamento</string>
 
 </resources>
