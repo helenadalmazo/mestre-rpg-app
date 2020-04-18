@@ -9,8 +9,8 @@ import java.io.Serializable
 class Monster (id: String = "",
                @set:Exclude @get:Exclude var image: ByteArray = byteArrayOf(),
                name: String = "",
-               characteristics: String,
-               history: String,
+               characteristics: String = "",
+               history: String = "",
                val size: Size? = null,
                val type: Type? = null,
                val displacement: Displacement? = null)
