@@ -68,11 +68,11 @@ class NpcActivity : AppCompatActivity() {
 
         enumValues<Sex>()
 
-        val spinnerSexArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Sex.values().map { sex -> sex.value })
+        val spinnerSexArrayAdapter = ArrayAdapter<Sex>(this, android.R.layout.simple_spinner_item, Sex.values())
         spinnerSexArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerSex.adapter = spinnerSexArrayAdapter
 
-        val spinnerRaceArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Race.values().map { race -> race.value })
+        val spinnerRaceArrayAdapter = ArrayAdapter<Race>(this, android.R.layout.simple_spinner_item, Race.values())
         spinnerRaceArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerRace.adapter = spinnerRaceArrayAdapter
     }
@@ -122,8 +122,8 @@ class NpcActivity : AppCompatActivity() {
         val name = editTextName.text.toString()
         val characteristics = editTextCharacteristics.text.toString()
         val history = editTextHistory.text.toString()
-        val sex = Sex.get(spinnerSex.selectedItem.toString())
-        val race = Race.get(spinnerRace.selectedItem.toString())
+        val sex = spinnerSex.selectedItem as Sex
+        val race = spinnerRace.selectedItem as Race
 
         return Npc(npcObject.id, image, name, characteristics, history, sex, race)
     }

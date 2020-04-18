@@ -16,9 +16,7 @@ enum class Type(val value: String) {
     PLANT("Planta"),
     UNDEAD("Morto-vivo");
 
-    companion object {
-        fun get(v: String): Type? {
-            return values().find { it.value == v }
-        }
+    override fun toString(): String {
+        return value
     }
 }

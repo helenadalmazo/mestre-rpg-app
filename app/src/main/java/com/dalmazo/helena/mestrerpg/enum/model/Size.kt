@@ -8,9 +8,7 @@ enum class Size(val value: String) {
     HUGE("Enorme"),
     GARGANTUAN("Imenso");
 
-    companion object {
-        fun get(v: String): Size? {
-            return values().find { it.value == v }
-        }
+    override fun toString(): String {
+        return value
     }
 }

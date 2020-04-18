@@ -69,15 +69,15 @@ class MonsterActivity : AppCompatActivity() {
         spinnerSize = findViewById(R.id.size)
         spinnerDisplacement = findViewById(R.id.displacement)
 
-        val spinnerTypeArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Type.values().map { type -> type.value })
+        val spinnerTypeArrayAdapter = ArrayAdapter<Type>(this, android.R.layout.simple_spinner_item, Type.values())
         spinnerTypeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerType.adapter = spinnerTypeArrayAdapter
 
-        val spinnerSizeArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Size.values().map { size -> size.value })
+        val spinnerSizeArrayAdapter = ArrayAdapter<Size>(this, android.R.layout.simple_spinner_item, Size.values())
         spinnerSizeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerSize.adapter = spinnerSizeArrayAdapter
 
-        val spinnerDisplacementArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Displacement.values().map { displacement -> displacement.value })
+        val spinnerDisplacementArrayAdapter = ArrayAdapter<Displacement>(this, android.R.layout.simple_spinner_item, Displacement.values())
         spinnerDisplacementArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerDisplacement.adapter = spinnerDisplacementArrayAdapter
     }
@@ -92,9 +92,9 @@ class MonsterActivity : AppCompatActivity() {
         editTextName.setText(monsterObject.name, TextView.BufferType.EDITABLE)
         editTextCharacteristics.setText(monsterObject.characteristics, TextView.BufferType.EDITABLE)
         editTextHistory.setText(monsterObject.history, TextView.BufferType.EDITABLE)
-        spinnerType.setSelection((spinnerType.adapter as ArrayAdapter<String>).getPosition(monsterObject.type?.value))
-        spinnerSize.setSelection((spinnerSize.adapter as ArrayAdapter<String>).getPosition(monsterObject.size?.value))
-        spinnerDisplacement.setSelection((spinnerSize.adapter as ArrayAdapter<String>).getPosition(monsterObject.displacement?.value))
+        spinnerType.setSelection((spinnerType.adapter as ArrayAdapter<Type>).getPosition(monsterObject.type))
+        spinnerSize.setSelection((spinnerSize.adapter as ArrayAdapter<Size>).getPosition(monsterObject.size))
+        spinnerDisplacement.setSelection((spinnerDisplacement.adapter as ArrayAdapter<Displacement>).getPosition(monsterObject.displacement))
     }
 
     private fun save() {
@@ -128,9 +128,9 @@ class MonsterActivity : AppCompatActivity() {
         val name = editTextName.text.toString()
         val characteristics = editTextCharacteristics.text.toString()
         val history = editTextHistory.text.toString()
-        val size = Size.get(spinnerSize.selectedItem.toString())
-        val type = Type.get(spinnerType.selectedItem.toString())
-        val displacement = Displacement.get(spinnerDisplacement.selectedItem.toString())
+        val size = spinnerSize.selectedItem as Size
+        val type = spinnerType.selectedItem as Type
+        val displacement = spinnerDisplacement.selectedItem as Displacement
 
         return Monster(monsterObject.id, image, name, characteristics, history, size, type, displacement)
     }
@@ -195,6 +195,7 @@ class MonsterActivity : AppCompatActivity() {
         editTextHistory.isEnabled = true
         spinnerType.isEnabled = true
         spinnerSize.isEnabled = true
+        spinnerDisplacement.isEnabled = true
 
         if (imageViewMonster.drawable == null) {
             addImageButton.visibility = View.VISIBLE
@@ -211,6 +212,7 @@ class MonsterActivity : AppCompatActivity() {
         editTextHistory.isEnabled = false
         spinnerType.isEnabled = false
         spinnerSize.isEnabled = false
+        spinnerDisplacement.isEnabled = false
 
         addImageButton.visibility = View.GONE
         editImageButton.visibility = View.GONE

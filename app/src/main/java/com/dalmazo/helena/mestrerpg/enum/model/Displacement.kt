@@ -6,9 +6,7 @@ enum class Displacement(val value: String) {
     FLY("Voo"),
     SWIM("Natação");
 
-    companion object {
-        fun get(v: String): Displacement? {
-            return values().find { it.value == v }
-        }
+    override fun toString(): String {
+        return value
     }
 }

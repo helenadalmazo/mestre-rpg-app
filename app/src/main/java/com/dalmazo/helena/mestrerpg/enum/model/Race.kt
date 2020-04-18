@@ -7,9 +7,7 @@ enum class Race(val value: String) {
     HUMAN("Humano"),
     ORC("Ocr");
 
-    companion object {
-        fun get(v: String): Race? {
-            return Race.values().find { race -> race.value == v }
-        }
+    override fun toString(): String {
+        return value
     }
 }
