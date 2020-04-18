@@ -1,8 +1,8 @@
 package com.dalmazo.helena.mestrerpg.model
 
-import com.dalmazo.helena.mestrerpg.enum.Displacement
-import com.dalmazo.helena.mestrerpg.enum.Size
-import com.dalmazo.helena.mestrerpg.enum.Type
+import com.dalmazo.helena.mestrerpg.enum.model.Displacement
+import com.dalmazo.helena.mestrerpg.enum.model.Size
+import com.dalmazo.helena.mestrerpg.enum.model.Type
 import com.dalmazo.helena.mestrerpg.model.base.BaseModel
 import com.google.firebase.firestore.Exclude
 import java.io.Serializable

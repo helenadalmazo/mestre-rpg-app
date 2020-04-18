@@ -16,9 +16,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import com.dalmazo.helena.mestrerpg.enum.Action
 import com.dalmazo.helena.mestrerpg.enum.DisplayMode
-import com.dalmazo.helena.mestrerpg.enum.Race
 import com.dalmazo.helena.mestrerpg.enum.RequestCode
-import com.dalmazo.helena.mestrerpg.enum.Sex
+import com.dalmazo.helena.mestrerpg.enum.model.Race
+import com.dalmazo.helena.mestrerpg.enum.model.Sex
 import com.dalmazo.helena.mestrerpg.util.Utils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -65,6 +65,8 @@ class NpcActivity : AppCompatActivity() {
         editTextHistory = findViewById(R.id.history)
         spinnerSex = findViewById(R.id.sex)
         spinnerRace = findViewById(R.id.race)
+
+        enumValues<Sex>()
 
         val spinnerSexArrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Sex.values().map { sex -> sex.value })
         spinnerSexArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

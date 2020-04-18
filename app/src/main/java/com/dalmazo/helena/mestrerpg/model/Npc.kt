@@ -1,7 +1,7 @@
 package com.dalmazo.helena.mestrerpg.model
 
-import com.dalmazo.helena.mestrerpg.enum.Race
-import com.dalmazo.helena.mestrerpg.enum.Sex
+import com.dalmazo.helena.mestrerpg.enum.model.Race
+import com.dalmazo.helena.mestrerpg.enum.model.Sex
 import com.dalmazo.helena.mestrerpg.model.base.BaseModel
 import com.google.firebase.firestore.Exclude
 import java.io.Serializable

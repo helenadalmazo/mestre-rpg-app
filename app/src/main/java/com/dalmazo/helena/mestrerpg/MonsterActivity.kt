@@ -12,7 +12,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import com.dalmazo.helena.mestrerpg.enum.*
+import com.dalmazo.helena.mestrerpg.enum.Action
+import com.dalmazo.helena.mestrerpg.enum.DisplayMode
+import com.dalmazo.helena.mestrerpg.enum.RequestCode
+import com.dalmazo.helena.mestrerpg.enum.model.Displacement
+import com.dalmazo.helena.mestrerpg.enum.model.Size
+import com.dalmazo.helena.mestrerpg.enum.model.Type
 import com.dalmazo.helena.mestrerpg.model.Monster
 import com.dalmazo.helena.mestrerpg.util.Extra
 import com.dalmazo.helena.mestrerpg.util.Utils

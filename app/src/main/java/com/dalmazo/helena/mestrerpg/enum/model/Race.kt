@@ -1,4 +1,4 @@
-package com.dalmazo.helena.mestrerpg.enum
+package com.dalmazo.helena.mestrerpg.enum.model
 
 enum class Race(val value: String) {
     DWARF("Anão"),
