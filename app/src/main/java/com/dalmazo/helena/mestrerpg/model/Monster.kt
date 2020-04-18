@@ -3,6 +3,7 @@ package com.dalmazo.helena.mestrerpg.model
 import com.dalmazo.helena.mestrerpg.enum.Displacement
 import com.dalmazo.helena.mestrerpg.enum.Size
 import com.dalmazo.helena.mestrerpg.enum.Type
+import com.dalmazo.helena.mestrerpg.model.base.BaseModel
 import com.google.firebase.firestore.Exclude
 import java.io.Serializable
 

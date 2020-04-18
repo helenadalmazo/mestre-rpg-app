@@ -1,12 +1,10 @@
 package com.dalmazo.helena.mestrerpg.model
 
+import com.dalmazo.helena.mestrerpg.model.base.BaseModel
 import java.io.Serializable
 
 class World(id: String = "",
             name: String = "",
             characteristics: String = "",
-            history: String = "",
-            val places: List<Place> = listOf(),
-            val npcs: MutableList<Npc> = mutableListOf(),
-            val monsters: List<Monster> = listOf())
+            history: String = "")
     : BaseModel(id, name, characteristics, history), Serializable { }
