@@ -6,5 +6,11 @@ enum class Size(val value: String) {
     MEDIUM("Médio"),
     LARGE("Grande"),
     HUGE("Enorme"),
-    GARGANTUAN("Imenso")
+    GARGANTUAN("Imenso");
+
+    companion object {
+        fun get(v: String): Size? {
+            return values().find { it.value == v }
+        }
+    }
 }

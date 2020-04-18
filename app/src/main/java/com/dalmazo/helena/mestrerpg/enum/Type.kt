@@ -10,9 +10,15 @@ enum class Type(val value: String) {
     FEY("Fadas"),
     FIEND("Demônio"),
     GIANT("Gigante"),
-    HUMANOID("Humonoide),
+    HUMANOID("Humonoide"),
     MONSTROSITY("Monstruosidade"),
     OOZE("Limos"),
     PLANT("Planta"),
-    UNDEAD("Morto-vivo")
+    UNDEAD("Morto-vivo");
+
+    companion object {
+        fun get(v: String): Type? {
+            return values().find { it.value == v }
+        }
+    }
 }
