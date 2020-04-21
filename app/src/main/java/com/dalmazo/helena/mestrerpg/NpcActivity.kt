@@ -66,8 +66,6 @@ class NpcActivity : AppCompatActivity() {
         spinnerSex = findViewById(R.id.sex)
         spinnerRace = findViewById(R.id.race)
 
-        enumValues<Sex>()
-
         val spinnerSexArrayAdapter = ArrayAdapter<Sex>(this, android.R.layout.simple_spinner_item, Sex.values())
         spinnerSexArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerSex.adapter = spinnerSexArrayAdapter
