@@ -21,7 +21,7 @@ import com.dalmazo.helena.mestrerpg.repository.image.NpcImageRepository
 import com.dalmazo.helena.mestrerpg.util.Extra
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-class NpcFragment : Fragment() {
+class NpcFragment: Fragment() {
 
     private lateinit var npcRepository: NpcRepository
 
