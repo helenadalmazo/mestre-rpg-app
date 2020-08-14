@@ -14,8 +14,8 @@ class NpcImageRepository {
         return storageReference.child("${npc.id}.jpg").getBytes(1024 * 1024)
     }
 
-    public fun save(npc: Npc, image: ByteArray): UploadTask {
-        return storageReference.child("${npc.id}.jpg").putBytes(image)
+    public fun save(npc: Npc): UploadTask {
+        return storageReference.child("${npc.id}.jpg").putBytes(npc.image)
     }
 
     public fun delete(npc: Npc): Task<Void>? {

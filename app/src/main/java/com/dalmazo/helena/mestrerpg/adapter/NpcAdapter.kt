@@ -37,9 +37,10 @@ class NpcAdapter(private val fragment: NpcFragment, private val npcList: Mutable
 
         holder.name.text = npc.name
 
-        holder.image.setImageResource(R.drawable.no_image_available)
-        NpcImageRepository().get(npc).addOnSuccessListener { bytes ->
-            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        if (npc.image.isEmpty()) {
+            holder.image.setImageResource(R.drawable.no_image_available)
+        } else {
+            val bitmap = BitmapFactory.decodeByteArray(npc.image, 0, npc.image.size)
             holder.image.setImageBitmap(bitmap)
         }
 

@@ -2,9 +2,11 @@ package com.dalmazo.helena.mestrerpg.model
 
 import com.dalmazo.helena.mestrerpg.enum.Race
 import com.dalmazo.helena.mestrerpg.enum.Sex
+import com.google.firebase.firestore.Exclude
 import java.io.Serializable
 
 class Npc(id: String = "",
+          @set:Exclude @get:Exclude var image: ByteArray = byteArrayOf(),
           name: String = "",
           characteristics: String = "",
           history: String = "",
@@ -19,6 +21,7 @@ class Npc(id: String = "",
 
         val that = other as Npc
         return id == that.id
+                && image.contentEquals(that.image)
                 && name == that.name
                 && characteristics == that.characteristics
                 && history == that.history
