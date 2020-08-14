@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">mestre-rpg-app</string>
 
+    <!--User-->
+    <string name="email">E-mail</string>
+    <string name="password">Senha</string>
+
     <!--Título das atividades-->
     <string name="title_activity_world">Mundo</string>
 

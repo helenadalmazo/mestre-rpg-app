@@ -3,11 +3,14 @@ package com.dalmazo.helena.mestrerpg
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.dalmazo.helena.mestrerpg.model.World
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
@@ -17,6 +20,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         setWorldList()
     }
@@ -59,6 +64,23 @@ class MainActivity : AppCompatActivity() {
             rowView.findViewById<TextView>(R.id.item_characteristics).text = world.characteristics
 
             return rowView
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.app_bar_actions_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.action_logout -> {
+            FirebaseAuth.getInstance().signOut()
+            startActivity(Intent(this, AuthActivity::class.java))
+            finish()
+            true
+        }
+        else -> {
+            super.onOptionsItemSelected(item)
         }
     }
 }
